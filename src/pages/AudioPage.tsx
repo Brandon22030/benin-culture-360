@@ -7,7 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, 
-  Download, Info, Music, Clock, Disc3
+  Download, Info, Music, Clock, Disc3, X
 } from 'lucide-react';
 
 const AudioPage = () => {
