@@ -1,11 +1,18 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, MapPin, Image, Music, BookOpen, Users } from 'lucide-react';
+import { Menu, X, MapPin, Image, Music, BookOpen, Users, LogIn, UserPlus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import LoginDialog from '@/components/auth/LoginDialog';
+import RegisterDialog from '@/components/auth/RegisterDialog';
+import UserMenu from '@/components/auth/UserMenu';
+import { useAuth } from '@/context/AuthContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [showRegisterDialog, setShowRegisterDialog] = useState(false);
+  const { user, isLoading } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -48,13 +55,40 @@ const Navbar = () => {
               <Users size={18} />
               <span>Contribuer</span>
             </Link>
-            <Button variant="default" className="bg-benin-green hover:bg-benin-green/90 ml-2">
-              Connexion
-            </Button>
+            
+            {!isLoading && (
+              user ? (
+                <UserMenu />
+              ) : (
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="outline" 
+                    className="text-benin-green border-benin-green hover:bg-benin-green/10"
+                    onClick={() => setShowLoginDialog(true)}
+                  >
+                    <LogIn size={18} className="mr-2" />
+                    Connexion
+                  </Button>
+                  <Button 
+                    variant="default" 
+                    className="bg-benin-green hover:bg-benin-green/90"
+                    onClick={() => setShowRegisterDialog(true)}
+                  >
+                    <UserPlus size={18} className="mr-2" />
+                    Inscription
+                  </Button>
+                </div>
+              )
+            )}
           </div>
           
           {/* Mobile menu button */}
           <div className="flex items-center md:hidden">
+            {!isLoading && user && (
+              <div className="mr-2">
+                <UserMenu />
+              </div>
+            )}
             <button
               onClick={toggleMenu}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-benin-green focus:outline-none"
@@ -99,14 +133,34 @@ const Navbar = () => {
                 <span>Contribuer</span>
               </div>
             </Link>
-            <div className="pt-2">
-              <Button variant="default" className="w-full bg-benin-green hover:bg-benin-green/90">
-                Connexion
-              </Button>
-            </div>
+            
+            {!isLoading && !user && (
+              <div className="pt-2 space-y-2">
+                <Button 
+                  variant="outline" 
+                  className="w-full text-benin-green border-benin-green hover:bg-benin-green/10"
+                  onClick={() => setShowLoginDialog(true)}
+                >
+                  <LogIn size={18} className="mr-2" />
+                  Connexion
+                </Button>
+                <Button 
+                  variant="default" 
+                  className="w-full bg-benin-green hover:bg-benin-green/90"
+                  onClick={() => setShowRegisterDialog(true)}
+                >
+                  <UserPlus size={18} className="mr-2" />
+                  Inscription
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}
+
+      {/* Auth Dialogs */}
+      <LoginDialog open={showLoginDialog} onOpenChange={setShowLoginDialog} />
+      <RegisterDialog open={showRegisterDialog} onOpenChange={setShowRegisterDialog} />
     </nav>
   );
 };
