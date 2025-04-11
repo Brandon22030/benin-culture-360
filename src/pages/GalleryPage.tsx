@@ -6,10 +6,20 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Filter, Search, X } from 'lucide-react';
+import { Filter, Search, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { 
+  Carousel, 
+  CarouselContent, 
+  CarouselItem, 
+  CarouselNext, 
+  CarouselPrevious 
+} from "@/components/ui/carousel";
 
 // Filter categories
 const categories = Array.from(new Set(galleryItems.map(item => item.category)));
+
+// Featured items for the carousel
+const featuredItems = galleryItems.slice(0, 5);
 
 const GalleryPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -30,12 +40,43 @@ const GalleryPage = () => {
   return (
     <Layout>
       <div className="bg-gray-50 min-h-screen">
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold font-title mb-6">Galerie Culturelle du Bénin</h1>
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto text-center mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold font-title mb-4">Galerie Culturelle du Bénin</h1>
             <p className="text-lg text-gray-600">
               Découvrez la richesse du patrimoine béninois à travers notre collection d'images mettant en valeur l'art, l'architecture, les festivals et les traditions du pays.
             </p>
+          </div>
+
+          {/* Featured Carousel */}
+          <div className="mb-10 max-w-4xl mx-auto">
+            <h2 className="text-2xl font-semibold mb-4 text-center">En vedette</h2>
+            <Carousel className="w-full">
+              <CarouselContent>
+                {featuredItems.map((item) => (
+                  <CarouselItem key={item.id}>
+                    <div className="p-1">
+                      <div 
+                        className="relative aspect-[16/9] overflow-hidden rounded-xl cursor-pointer"
+                        onClick={() => setSelectedItem(item.id)}
+                      >
+                        <img 
+                          src={item.imageUrl || "/images/gallery/placeholder.jpg"} 
+                          alt={item.title}
+                          className="w-full h-full object-cover" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
+                          <h3 className="text-white text-xl font-semibold">{item.title}</h3>
+                          <p className="text-white/80 line-clamp-2">{item.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-2 bg-white/80" />
+              <CarouselNext className="right-2 bg-white/80" />
+            </Carousel>
           </div>
 
           {/* Search and filter */}
@@ -162,12 +203,15 @@ const GalleryPage = () => {
                   <TabsTrigger value="details">Détails</TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="image" className="flex justify-center">
+                <TabsContent value="image" className="flex flex-col items-center">
                   <img 
                     src={currentItem.imageUrl || "/images/gallery/placeholder.jpg"} 
                     alt={currentItem.title}
                     className="max-h-[60vh] object-contain rounded-lg" 
                   />
+                  <div className="flex justify-center mt-2 text-sm text-gray-500">
+                    Cliquez sur l'image pour l'agrandir
+                  </div>
                 </TabsContent>
                 
                 <TabsContent value="details">
