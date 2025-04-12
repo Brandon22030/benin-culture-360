@@ -19,12 +19,14 @@ import NewArticlePage from "./pages/articles/new";
 import ArticleDetailPage from "./pages/articles/[id]";
 import ProfilePage from "./pages/profile";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import { AuthProvider } from "./contexts/auth-context";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
@@ -46,7 +48,8 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
-    </TooltipProvider>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
