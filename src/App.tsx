@@ -18,6 +18,7 @@ import ArticlesPage from "./pages/articles";
 import NewArticlePage from "./pages/articles/new";
 import ArticleDetailPage from "./pages/articles/[id]";
 import ProfilePage from "./pages/profile";
+import AuthCallback from "./pages/auth/callback";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { AuthProvider } from "./contexts/auth-context";
 
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/articles/new" element={<NewArticlePage />} />
           <Route path="/articles/:id" element={<ArticleDetailPage />} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
