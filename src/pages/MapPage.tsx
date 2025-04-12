@@ -1,17 +1,73 @@
-
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Layout from '@/components/Layout';
 import { regions, CulturalElement } from '@/data/culturalData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Info, X } from 'lucide-react';
+import { Loader } from '@googlemaps/js-api-loader';
+import { useToast } from '@/hooks/use-toast';
+
+// Coordonnées du Bénin
+const BENIN_BOUNDS = {
+  north: 12.4183,
+  south: 6.2250,
+  east: 3.8517,
+  west: 0.7743
+};
+
+const BENIN_CENTER = {
+  lat: 9.3217,
+  lng: 2.3158
+};
+
+// Chargeur Google Maps
+const loader = new Loader({
+  apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
+  version: 'weekly',
+  libraries: ['places']
+});
 
 const MapPage = () => {
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [selectedElement, setSelectedElement] = useState<CulturalElement | null>(null);
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<google.maps.Map | null>(null);
+  const markers = useRef<{ [key: string]: google.maps.Marker }>({});
+  const [zoom] = useState(7);
+  const { toast } = useToast();
   
   const handleRegionClick = (regionId: string) => {
+    // Réinitialiser la couleur de tous les marqueurs
+    Object.values(markers.current).forEach(marker => {
+      marker.setIcon({
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: '#16A34A',
+        fillOpacity: 1,
+        strokeColor: '#ffffff',
+        strokeWeight: 2,
+        scale: 8
+      });
+    });
+
+    // Mettre à jour la couleur du marqueur sélectionné
+    if (markers.current[regionId]) {
+      markers.current[regionId].setIcon({
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: '#047857',
+        fillOpacity: 1,
+        strokeColor: '#ffffff',
+        strokeWeight: 2,
+        scale: 8
+      });
+
+      // Centrer la carte sur le marqueur sélectionné
+      if (map.current) {
+        map.current.panTo(markers.current[regionId].getPosition()!);
+        map.current.setZoom(9);
+      }
+    }
+
     setSelectedRegion(regionId);
     setSelectedElement(null); // Reset selected element when region changes
   };
@@ -23,7 +79,85 @@ const MapPage = () => {
   const closeElementDetails = () => {
     setSelectedElement(null);
   };
-  
+
+  useEffect(() => {
+    if (!import.meta.env.VITE_GOOGLE_MAPS_API_KEY) {
+      toast({
+        title: "Erreur de configuration",
+        description: "La clé d'API Google Maps n'est pas configurée",
+        variant: "destructive",
+        className: "bg-red-50 text-red-900 border-red-200",
+      });
+      return;
+    }
+
+    if (map.current || !mapContainer.current) return;
+
+    loader.load().then(() => {
+      map.current = new google.maps.Map(mapContainer.current!, {
+        center: BENIN_CENTER,
+        zoom: zoom,
+        restriction: {
+          latLngBounds: {
+            north: BENIN_BOUNDS.north,
+            south: BENIN_BOUNDS.south,
+            east: BENIN_BOUNDS.east,
+            west: BENIN_BOUNDS.west
+          },
+          strictBounds: true
+        },
+        mapTypeControl: true,
+        streetViewControl: true,
+        fullscreenControl: true,
+        zoomControl: true,
+        scaleControl: true
+      });
+
+      // Ajouter les marqueurs pour chaque région
+      regions.forEach(region => {
+        if (region.coordinates) {
+          const marker = new google.maps.Marker({
+            position: {
+              lat: region.coordinates.lat,
+              lng: region.coordinates.lng
+            },
+            map: map.current,
+            title: region.name,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              fillColor: selectedRegion === region.id ? '#047857' : '#16A34A',
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 2,
+              scale: 8
+            }
+          });
+
+          // Stocker le marqueur dans la référence
+          markers.current[region.id] = marker;
+
+          // Ajouter un écouteur de clic sur le marqueur
+          marker.addListener('click', () => {
+            handleRegionClick(region.id);
+          });
+        }
+      });
+    }).catch((error) => {
+      console.error('Error loading Google Maps:', error);
+      toast({
+        title: "Erreur de chargement",
+        description: "Impossible de charger Google Maps",
+        variant: "destructive",
+        className: "bg-red-50 text-red-900 border-red-200",
+      });
+    });
+
+    return () => {
+      // Google Maps ne nécessite pas de nettoyage explicite
+      map.current = null;
+    };
+  }, [toast, zoom]);
+
   const region = regions.find(r => r.id === selectedRegion);
   
   return (
@@ -46,12 +180,9 @@ const MapPage = () => {
                   Cliquez sur une région pour explorer ses éléments culturels
                 </p>
                 
-                {/* This would be a real map in a full implementation */}
+                {/* Real Mapbox map implementation */}
                 <div className="relative border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50 min-h-[400px]">
-                  {/* Simplified map representation */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <p className="text-gray-400 italic">Carte interactive du Bénin</p>
-                  </div>
+                  <div ref={mapContainer} className="absolute inset-0" />
                   
                   {/* Map regions (simplified) */}
                   <div className="relative z-10 p-4">
@@ -82,31 +213,19 @@ const MapPage = () => {
                 </div>
               </div>
             </div>
-            
-            {/* Region information - right panel */}
+
+            {/* Right panel */}
             <div className="lg:col-span-2">
-              {selectedRegion ? (
-                <div className="bg-white rounded-xl shadow-md overflow-hidden">
-                  <div className="relative h-40 overflow-hidden">
-                    <img 
-                      src={region?.image || "/images/regions/placeholder.jpg"} 
-                      alt={region?.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                    <div className="absolute bottom-4 left-4 text-white">
-                      <h2 className="text-2xl font-semibold">{region?.name}</h2>
-                    </div>
-                  </div>
+              {region ? (
+                <div className="bg-white rounded-xl shadow-md p-6">
+                  <h3 className="text-xl font-semibold mb-4">{region.name}</h3>
+                  <p className="text-gray-600 mb-6">{region.description}</p>
                   
-                  <div className="p-6">
-                    <p className="text-gray-600 mb-6">{region?.description}</p>
-                    
-                    <h3 className="text-lg font-semibold mb-4">Éléments Culturels</h3>
-                    
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-gray-900">Eléments culturels</h4>
                     <div className="space-y-3">
-                      {region?.culturalElements.map(element => (
-                        <div 
+                      {region.culturalElements.map((element) => (
+                        <div
                           key={element.id}
                           onClick={() => handleElementClick(element)}
                           className="p-3 border border-gray-100 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"

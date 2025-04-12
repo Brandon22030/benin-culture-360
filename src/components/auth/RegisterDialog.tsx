@@ -7,12 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EyeIcon, EyeOffIcon, Mail, Lock, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { createClient } from '@supabase/supabase-js';
-
-// Initialize the Supabase client with the environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-url.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { supabase } from '@/services/supabase';
 
 interface RegisterDialogProps {
   open: boolean;
@@ -36,6 +31,7 @@ const RegisterDialog = ({ open, onOpenChange }: RegisterDialogProps) => {
         title: "Acceptation des conditions requise",
         description: "Veuillez accepter les conditions d'utilisation pour continuer.",
         variant: "destructive",
+        className: "bg-red-50 text-red-900 border-red-200",
       });
       return;
     }
@@ -43,7 +39,7 @@ const RegisterDialog = ({ open, onOpenChange }: RegisterDialogProps) => {
     setIsLoading(true);
 
     try {
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -57,17 +53,36 @@ const RegisterDialog = ({ open, onOpenChange }: RegisterDialogProps) => {
         throw signUpError;
       }
 
+      // Create a profile for the new user
+      if (signUpData.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: signUpData.user.id,
+            username: email.split('@')[0],
+            full_name: name,
+          });
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+          // We don't throw here as the user is already created
+        }
+      }
+
       toast({
         title: "Inscription réussie",
         description: "Veuillez vérifier votre boîte email pour confirmer votre compte.",
+        className: "bg-green-50 text-green-900 border-green-200",
       });
       
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error) {
+      const e = error as { message?: string };
       toast({
         title: "Erreur d'inscription",
-        description: error.message || "Impossible de créer le compte. Veuillez réessayer.",
+        description: e.message || "Impossible de créer le compte. Veuillez réessayer.",
         variant: "destructive",
+        className: "bg-red-50 text-red-900 border-red-200",
       });
     } finally {
       setIsLoading(false);

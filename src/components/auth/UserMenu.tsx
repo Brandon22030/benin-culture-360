@@ -1,7 +1,7 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { LogOut } from 'lucide-react';
+import { LogOut, User } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,16 +10,31 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from '@/context/AuthContext';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useAuth } from '@/hooks/use-auth';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { supabase } from '@/services/supabase-client';
+import type { Database } from '@/types/database.types';
 
 const UserMenu = () => {
   const { user, signOut } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [profile, setProfile] = useState<{ id: string; full_name: string | null; avatar_url: string | null } | null>(null);
+
+  useEffect(() => {
+
+    if (user?.id) {
+      setProfile({
+        id: user.id,
+        full_name: user.user_metadata.full_name || '',
+        avatar_url: user.user_metadata.avatar_url || '',
+      });
+    }
+  }, [user]);
   
   const handleSignOut = async () => {
     setIsLoading(true);
     await signOut();
+    setProfile(null);
     setIsLoading(false);
   };
   
@@ -40,11 +55,19 @@ const UserMenu = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8 border border-benin-green/30">
-            <AvatarFallback className="bg-benin-green/10 text-benin-green">
-              {getInitials()}
-            </AvatarFallback>
+        <Button variant="ghost" className="relative h-11 w-11 rounded-full">
+          <Avatar className="h-10 w-10 border border-benin-green/30">
+            {profile?.avatar_url ? (
+              <AvatarImage 
+                src={profile.avatar_url} 
+                alt="Avatar" 
+                className="object-cover"
+              />
+            ) : (
+              <AvatarFallback className="bg-benin-green/10 text-benin-green">
+                {getInitials()}
+              </AvatarFallback>
+            )}
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -52,7 +75,7 @@ const UserMenu = () => {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {user?.user_metadata?.full_name || 'Utilisateur'}
+              {profile?.full_name || 'Utilisateur'}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
               {user?.email}
@@ -60,6 +83,12 @@ const UserMenu = () => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link to="/profile" className="cursor-pointer w-full">
+            <User className="mr-2 h-4 w-4" />
+            <span>Mon Profil</span>
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer" onClick={handleSignOut} disabled={isLoading}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>{isLoading ? 'Déconnexion...' : 'Se déconnecter'}</span>
