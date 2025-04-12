@@ -287,6 +287,7 @@ export const audioTracks: AudioTrack[] = [
 
 // Mock data for quiz questions
 export const quizQuestions: QuizQuestion[] = [
+  // Questions faciles
   {
     id: 'quiz-1',
     question: 'Quelle ville béninoise est connue comme le berceau du Vodun?',
@@ -331,5 +332,50 @@ export const quizQuestions: QuizQuestion[] = [
     explanation: 'L\'Akassa est un plat traditionnel béninois préparé à base de pâte de maïs fermenté. Il accompagne souvent des sauces épicées et du poisson.',
     category: 'Cuisine',
     difficulty: 'easy'
+  },
+  {
+    id: 'quiz-6',
+    question: 'Quelle est la capitale économique du Bénin ?',
+    options: ['Porto-Novo', 'Cotonou', 'Abomey', 'Parakou'],
+    correctAnswer: 1,
+    explanation: 'Cotonou est la capitale économique du Bénin, bien que Porto-Novo soit la capitale politique.',
+    category: 'Géographie',
+    difficulty: 'easy'
+  },
+  {
+    id: 'quiz-7',
+    question: 'Dans quelle région du Bénin se trouve le village lacustre de Ganvié ?',
+    options: ['Atlantique', 'Zou', 'Borgou', 'Atacora'],
+    correctAnswer: 0,
+    explanation: 'Le village de Ganvié, surnommé la "Venise de l\'Afrique", est situé dans la région de l\'Atlantique sur le lac Nokoué.',
+    category: 'Géographie',
+    difficulty: 'medium'
+  },
+  {
+    id: 'quiz-8',
+    question: 'Quelle technique artisanale est particulièrement célèbre à Abomey ?',
+    options: ['La poterie', 'Les appliqués', 'La vannerie', 'La forge'],
+    correctAnswer: 1,
+    explanation: 'Les appliqués d\'Abomey sont des tapisseries traditionnelles qui racontent l\'histoire du royaume à travers des motifs colorés.',
+    category: 'Artisanat',
+    difficulty: 'medium'
+  },
+  {
+    id: 'quiz-9',
+    question: 'Quel est le nom de la fête traditionnelle du 10 janvier au Bénin ?',
+    options: ['Fête de l\'igname', 'Fête du Vodun', 'Fête de la moisson', 'Fête des religions'],
+    correctAnswer: 1,
+    explanation: 'Le 10 janvier est la Fête Nationale du Vodun au Bénin, une journée dédiée aux pratiques et traditions vaudou.',
+    category: 'Culture',
+    difficulty: 'easy'
+  },
+  {
+    id: 'quiz-10',
+    question: 'Quelle est la signification du mot "Dahomey" ?',
+    options: ['Terre des rois', 'Ventre du serpent', 'Pays des palmiers', 'Terre des braves'],
+    correctAnswer: 1,
+    explanation: 'Dahomey signifie "Dans le ventre de Dan (serpent)", faisant référence à la légende de la fondation du royaume.',
+    category: 'Histoire',
+    difficulty: 'hard'
   }
 ];

@@ -1,43 +1,61 @@
-
-import { useState, useEffect } from 'react';
-import Layout from '@/components/Layout';
-import { quizQuestions } from '@/data/culturalData';
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle, CheckCircle, Medal, RotateCcw, Trophy, XCircle } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
+import { generateQuizQuestionsFromAI } from "@/services/quiz-generator";
 
 type QuizState = 'start' | 'question' | 'result';
 
+interface QuizQuestion {
+  id: string;
+  category: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  difficulty: string;
+  explanation: string;
+}
+
 const QuizPage = () => {
   const [quizState, setQuizState] = useState<QuizState>('start');
+  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(30);
-  const [timerInterval, setTimerInterval] = useState<number | null>(null);
+  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [difficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
   
   const { toast } = useToast();
   
-  const currentQuestion = quizQuestions[currentQuestionIndex];
-  const totalQuestions = quizQuestions.length;
+  const totalQuestions = questions.length;
+  const currentQuestion = useMemo(() => questions[currentQuestionIndex], [questions, currentQuestionIndex]);
   const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+  
+  const handleTimeUp = useCallback(() => {
+    setIsAnswerSubmitted(true);
+    toast({
+      title: "Temps écoulé !",
+      description: "Vous n'avez pas répondu à temps.",
+      variant: "destructive",
+    });
+  }, [toast]);
   
   // Start the timer when a question is shown
   useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
     if (quizState === 'question' && !isAnswerSubmitted) {
-      // Clear any existing interval
-      if (timerInterval) {
-        clearInterval(timerInterval);
-      }
-      
       // Reset timer
       setTimer(30);
       
       // Start a new interval
-      const interval = window.setInterval(() => {
+      interval = setInterval(() => {
         setTimer(prevTimer => {
           if (prevTimer <= 1) {
             clearInterval(interval);
@@ -50,37 +68,42 @@ const QuizPage = () => {
       
       // Store the interval ID
       setTimerInterval(interval);
-      
-      // Clean up on unmount or when answer is submitted
-      return () => {
-        clearInterval(interval);
-      };
     }
-  }, [quizState, currentQuestionIndex, isAnswerSubmitted]);
+    
+    // Clean up on unmount or when answer is submitted
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [quizState, currentQuestionIndex, isAnswerSubmitted, handleTimeUp]);
   
   // Clean up timer when component unmounts
   useEffect(() => {
     return () => {
-      if (timerInterval) {
-        clearInterval(timerInterval);
-      }
+      if (timerInterval) clearInterval(timerInterval);
     };
   }, [timerInterval]);
   
-  const handleTimeUp = () => {
-    setIsAnswerSubmitted(true);
-    toast({
-      title: "Temps écoulé !",
-      description: "Vous n'avez pas répondu à temps.",
-      variant: "destructive",
-    });
-  };
-  
-  const startQuiz = () => {
-    setQuizState('question');
-    setCurrentQuestionIndex(0);
-    setScore(0);
-  };
+  const startQuiz = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const generatedQuestions = await generateQuizQuestionsFromAI(10, difficulty, true);
+      setQuestions(generatedQuestions);
+      setQuizState('question');
+      setCurrentQuestionIndex(0);
+      setScore(0);
+      setSelectedAnswer(null);
+      setIsAnswerSubmitted(false);
+    } catch (error) {
+      console.error("Erreur lors de la génération de questions :", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de générer les questions. Veuillez réessayer."
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [difficulty, toast]);
   
   const handleAnswerSelect = (answerIndex: number) => {
     if (!isAnswerSubmitted) {
@@ -88,7 +111,7 @@ const QuizPage = () => {
     }
   };
   
-  const handleAnswerSubmit = () => {
+  const handleAnswerSubmit = useCallback(() => {
     if (selectedAnswer === null) return;
     
     // Clear the timer
@@ -103,9 +126,9 @@ const QuizPage = () => {
     }
     
     setIsAnswerSubmitted(true);
-  };
+  }, [selectedAnswer, currentQuestion, timerInterval]);
   
-  const handleNextQuestion = () => {
+  const handleNextQuestion = useCallback(() => {
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedAnswer(null);
@@ -113,38 +136,39 @@ const QuizPage = () => {
     } else {
       setQuizState('result');
     }
-  };
+  }, [currentQuestionIndex, totalQuestions]);
   
-  const restartQuiz = () => {
+  const restartQuiz = useCallback(() => {
     setQuizState('start');
     setCurrentQuestionIndex(0);
     setSelectedAnswer(null);
     setIsAnswerSubmitted(false);
     setScore(0);
-  };
+    setQuestions([]);
+  }, []);
   
   // Calculate difficulty factor
-  const getDifficultyFactor = (difficulty: string) => {
+  const getDifficultyFactor = useCallback((difficulty: string) => {
     switch (difficulty) {
       case 'easy': return 1;
       case 'medium': return 2;
       case 'hard': return 3;
       default: return 1;
     }
-  };
+  }, []);
   
   // Calculate total score with difficulty bonus
-  const calculateTotalScore = () => {
-    let baseScore = (score / totalQuestions) * 100;
-    let difficultyBonus = quizQuestions.reduce((total, q) => {
+  const calculateTotalScore = useCallback(() => {
+    const baseScore = (score / totalQuestions) * 100;
+    const difficultyBonus = questions.reduce((total, q) => {
       return total + getDifficultyFactor(q.difficulty);
     }, 0) / totalQuestions;
     
     return Math.round(baseScore * difficultyBonus);
-  };
+  }, [score, totalQuestions, questions, getDifficultyFactor]);
   
   // Get message based on score
-  const getScoreMessage = () => {
+  const getScoreMessage = useCallback(() => {
     const percentage = (score / totalQuestions) * 100;
     
     if (percentage >= 90) return "Expert culturel !";
@@ -152,7 +176,7 @@ const QuizPage = () => {
     if (percentage >= 50) return "Bonnes connaissances !";
     if (percentage >= 30) return "Encore quelques efforts...";
     return "Une occasion d'apprendre !";
-  };
+  }, [score, totalQuestions]);
   
   return (
     <Layout>
@@ -174,7 +198,7 @@ const QuizPage = () => {
                       Comment jouer
                     </h3>
                     <ul className="list-disc list-inside text-sm space-y-1">
-                      <li>Le quiz comporte {totalQuestions} questions sur divers aspects de la culture béninoise</li>
+                      <li>Le quiz comporte 10 questions générées par intelligence artificielle</li>
                       <li>Vous avez 30 secondes pour répondre à chaque question</li>
                       <li>Chaque question n'a qu'une seule réponse correcte</li>
                       <li>Votre score final dépendra du nombre de bonnes réponses et de la difficulté des questions</li>
@@ -187,7 +211,7 @@ const QuizPage = () => {
                         <Trophy size={24} className="text-benin-yellow" />
                       </div>
                       <h3 className="font-semibold mb-1">Quiz complet</h3>
-                      <p className="text-sm text-gray-600">{totalQuestions} questions variées</p>
+                      <p className="text-sm text-gray-600">10 questions générées par IA</p>
                     </div>
                     
                     <div className="bg-white p-4 rounded-lg shadow-sm">
@@ -195,7 +219,7 @@ const QuizPage = () => {
                         <Medal size={24} className="text-benin-red" />
                       </div>
                       <h3 className="font-semibold mb-1">Difficulté variable</h3>
-                      <p className="text-sm text-gray-600">Des questions faciles à difficiles</p>
+                      <p className="text-sm text-gray-600">Questions adaptatives</p>
                     </div>
                     
                     <div className="bg-white p-4 rounded-lg shadow-sm">
@@ -211,8 +235,9 @@ const QuizPage = () => {
                   <Button 
                     className="bg-benin-green hover:bg-benin-green/90 text-white px-8 py-6 text-lg"
                     onClick={startQuiz}
+                    disabled={isLoading}
                   >
-                    Commencer le Quiz
+                    {isLoading ? 'Génération en cours...' : 'Commencer le Quiz'}
                   </Button>
                 </CardFooter>
               </Card>

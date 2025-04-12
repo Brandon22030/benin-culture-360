@@ -40,6 +40,7 @@ const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
       toast({
         title: "Connexion réussie",
         description: "Vous êtes maintenant connecté",
+        className: "bg-green-50 text-green-900 border-green-200",
       });
       
       onOpenChange(false);
@@ -48,6 +49,7 @@ const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
         title: "Erreur de connexion",
         description: error.message || "Impossible de se connecter. Veuillez réessayer.",
         variant: "destructive",
+        className: "bg-red-50 text-red-900 border-red-200",
       });
     } finally {
       setIsLoading(false);
@@ -106,6 +108,7 @@ const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
               toast({
                 title: "Réinitialisation du mot de passe",
                 description: "Cette fonctionnalité sera bientôt disponible.",
+                className: "bg-yellow-50 text-yellow-900 border-yellow-200",
               });
             }}>
               Mot de passe oublié?
