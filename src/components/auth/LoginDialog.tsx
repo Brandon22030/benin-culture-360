@@ -5,11 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { EyeIcon, EyeOffIcon, Mail, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-url.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { supabase } from '@/services/supabase-client';
 
 interface LoginDialogProps {
   open: boolean;
@@ -44,10 +40,11 @@ const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
       });
       
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error) {
+      const e = error as { message?: string };
       toast({
         title: "Erreur de connexion",
-        description: error.message || "Impossible de se connecter. Veuillez réessayer.",
+        description: e.message || "Impossible de se connecter. Veuillez réessayer.",
         variant: "destructive",
         className: "bg-red-50 text-red-900 border-red-200",
       });
