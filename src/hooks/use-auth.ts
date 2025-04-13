@@ -9,8 +9,11 @@ export function useAuth() {
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log('useAuth - Starting auth effect');
+    
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('useAuth - Initial session:', session);
       setUser(session?.user ?? null);
       setIsLoading(false);
     });
@@ -19,10 +22,12 @@ export function useAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('useAuth - Auth state change:', { event, session });
       setUser(session?.user ?? null);
       setIsLoading(false);
 
       if (event === 'SIGNED_IN') {
+        console.log('useAuth - User signed in');
         toast({
           title: "Connecté",
           description: "Vous êtes maintenant connecté à BéninCulture360",
@@ -31,6 +36,7 @@ export function useAuth() {
       }
       
       if (event === 'SIGNED_OUT') {
+        console.log('useAuth - User signed out');
         toast({
           title: "Déconnecté",
           description: "Vous avez été déconnecté avec succès",
@@ -39,7 +45,10 @@ export function useAuth() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log('useAuth - Cleaning up subscription');
+      subscription.unsubscribe();
+    };
   }, [toast]);
 
   const signOut = useCallback(async () => {

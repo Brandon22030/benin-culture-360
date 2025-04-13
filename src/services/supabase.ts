@@ -4,14 +4,23 @@ import { uploadImage } from './storage';
 
 // Profiles
 const getProfile = async (userId: string) => {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single();
-  
-  if (error) throw error;
-  return data;
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    
+    if (error) {
+      console.error('Error fetching profile:', error);
+      return null;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Unexpected error in getProfile:', error);
+    return null;
+  }
 };
 
 const updateProfile = async (userId: string, updates: Database['public']['Tables']['profiles']['Update']) => {

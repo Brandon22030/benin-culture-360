@@ -1,13 +1,25 @@
-
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { EyeIcon, EyeOffIcon, Mail, Lock, User } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/services/supabase-client';
+import { EyeIcon, EyeOffIcon, Mail, Lock, User } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { createClient } from "@supabase/supabase-js";
+
+// Initialize the Supabase client with the environment variables
+const supabaseUrl =
+  import.meta.env.VITE_SUPABASE_URL || "https://your-project-url.supabase.co";
+const supabaseAnonKey =
+  import.meta.env.VITE_SUPABASE_ANON_KEY || "your-anon-key";
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface RegisterDialogProps {
   open: boolean;
@@ -15,9 +27,9 @@ interface RegisterDialogProps {
 }
 
 const RegisterDialog = ({ open, onOpenChange }: RegisterDialogProps) => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -25,66 +37,48 @@ const RegisterDialog = ({ open, onOpenChange }: RegisterDialogProps) => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!agreeTerms) {
       toast({
         title: "Acceptation des conditions requise",
-        description: "Veuillez accepter les conditions d'utilisation pour continuer.",
+        description:
+          "Veuillez accepter les conditions d'utilisation pour continuer.",
         variant: "destructive",
-        className: "bg-red-50 text-red-900 border-red-200",
       });
       return;
     }
-    
+
     setIsLoading(true);
 
     try {
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             full_name: name,
           },
         },
-        email,
-        password,
-
       });
 
       if (signUpError) {
         throw signUpError;
       }
 
-      // Create a profile for the new user
-      if (signUpData.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: signUpData.user.id,
-            username: email.split('@')[0],
-            full_name: name,
-          });
-
-        if (profileError) {
-          console.error('Error creating profile:', profileError);
-          // We don't throw here as the user is already created
-        }
-      }
-
       toast({
         title: "Inscription réussie",
-        description: "Veuillez vérifier votre boîte email pour confirmer votre compte.",
-        className: "bg-green-50 text-green-900 border-green-200",
+        description:
+          "Veuillez vérifier votre boîte email pour confirmer votre compte.",
       });
-      
+
       onOpenChange(false);
     } catch (error) {
       const e = error as { message?: string };
       toast({
         title: "Erreur d'inscription",
-        description: e.message || "Impossible de créer le compte. Veuillez réessayer.",
+        description:
+          e.message || "Impossible de créer le compte. Veuillez réessayer.",
         variant: "destructive",
-        className: "bg-red-50 text-red-900 border-red-200",
       });
     } finally {
       setIsLoading(false);
@@ -97,18 +91,22 @@ const RegisterDialog = ({ open, onOpenChange }: RegisterDialogProps) => {
         <DialogHeader>
           <DialogTitle>Créer un compte</DialogTitle>
           <DialogDescription>
-            Rejoignez la communauté BéninCulture360 et contribuez à la valorisation de la culture béninoise.
+            Rejoignez la communauté BéninCulture360 et contribuez à la
+            valorisation de la culture béninoise.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleRegister} className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="name">Nom complet</Label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
-              <Input 
-                id="name" 
-                type="text" 
-                placeholder="Jean Dupont" 
+              <User
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                size={18}
+              />
+              <Input
+                id="name"
+                type="text"
+                placeholder="Jean Dupont"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="pl-10"
@@ -119,11 +117,14 @@ const RegisterDialog = ({ open, onOpenChange }: RegisterDialogProps) => {
           <div className="space-y-2">
             <Label htmlFor="register-email">Email</Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
-              <Input 
-                id="register-email" 
-                type="email" 
-                placeholder="votre@email.com" 
+              <Mail
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                size={18}
+              />
+              <Input
+                id="register-email"
+                type="email"
+                placeholder="votre@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="pl-10"
@@ -134,29 +135,36 @@ const RegisterDialog = ({ open, onOpenChange }: RegisterDialogProps) => {
           <div className="space-y-2">
             <Label htmlFor="register-password">Mot de passe</Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
-              <Input 
-                id="register-password" 
-                type={showPassword ? "text" : "password"} 
-                placeholder="••••••••" 
+              <Lock
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                size={18}
+              />
+              <Input
+                id="register-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="pl-10 pr-10"
                 required
                 minLength={6}
               />
-              <button 
+              <button
                 type="button"
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                {showPassword ? (
+                  <EyeOffIcon size={18} />
+                ) : (
+                  <EyeIcon size={18} />
+                )}
               </button>
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="terms" 
+            <Checkbox
+              id="terms"
               checked={agreeTerms}
               onCheckedChange={(checked) => setAgreeTerms(checked === true)}
             />
@@ -164,12 +172,13 @@ const RegisterDialog = ({ open, onOpenChange }: RegisterDialogProps) => {
               htmlFor="terms"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              J'accepte les conditions d'utilisation et la politique de confidentialité
+              J'accepte les conditions d'utilisation et la politique de
+              confidentialité
             </label>
           </div>
-          <Button 
-            type="submit" 
-            disabled={isLoading} 
+          <Button
+            type="submit"
+            disabled={isLoading}
             className="w-full bg-benin-green hover:bg-benin-green/90"
           >
             {isLoading ? "Création du compte..." : "S'inscrire"}

@@ -18,21 +18,26 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const loadProfile = async () => {
+      console.log('ProfilePage - Loading profile');
       const { data: { session } } = await supabase.auth.getSession();
+      console.log('ProfilePage - Session:', session);
+      
       if (!session?.user) {
-        navigate('/login');
+        console.log('ProfilePage - No user found, redirecting');
+        navigate('/');
         return;
       }
 
       try {
+        console.log('ProfilePage - Fetching profile for user:', session.user.id);
         const profile = await getProfile(session.user.id);
-        if (profile) {
-          setFormData({
-            username: profile.username || '',
-            full_name: profile.full_name || '',
-            avatar_url: profile.avatar_url || ''
-          });
-        }
+        console.log('ProfilePage - Fetched profile:', profile);
+        
+        setFormData({
+          username: profile?.username || '',
+          full_name: profile?.full_name || '',
+          avatar_url: profile?.avatar_url || ''
+        });
       } catch (error) {
         const e = error as { message?: string };
         toast({

@@ -21,10 +21,21 @@ import ProfilePage from "./pages/profile";
 import AuthCallback from "./pages/auth/callback";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { AuthProvider } from "./contexts/auth-context";
+import { setupDatabase } from "./services/database-setup";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  useEffect(() => {
+    setupDatabase().then(({ success, error }) => {
+      if (!success) {
+        console.error('Failed to setup database:', error);
+      }
+    });
+  }, []);
+
+  return (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
@@ -53,6 +64,7 @@ const App = () => (
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
