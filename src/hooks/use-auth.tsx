@@ -29,18 +29,56 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(user);
   };
 
-  // // Add other auth functions here
-  // const signIn = async (email: string, password: string) => {
-  //   // ... existing code ...
-  // };
+  const signIn = async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+      await refreshUser();
+    } catch (error: any) {
+      toast.error(error.message || "Erreur de connexion");
+      throw error;
+    }
+  };
 
-  // const signOut = async () => {
-  //   // ... existing code ...
-  // };
+  const signOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setUser(null);
+    } catch (error: any) {
+      toast.error(error.message || "Erreur de déconnexion");
+      throw error;
+    }
+  };
 
-  // const signUp = async (email: string, password: string, userData: any) => {
-  //   // ... existing code ...
-  // };
+  const signUp = async (email: string, password: string, userData: any) => {
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: userData }
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      toast.error(error.message || "Erreur d'inscription");
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    refreshUser();
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, signIn, signOut, signUp, refreshUser }}>
