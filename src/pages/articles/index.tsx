@@ -8,6 +8,7 @@ import type { Article } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { useAuth } from '@/hooks/use-auth';
 
 type ArticleWithRelations = Article & {
   cultures: { name: string } | null;
@@ -22,6 +23,19 @@ export default function ArticlesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  const handleNewArticle = () => {
+    if (!user) {
+      toast({
+        title: 'Non autorisé',
+        description: 'Vous devez être connecté pour écrire un article',
+        variant: 'destructive',
+      });
+      return;
+    }
+    navigate('/articles/new');
+  };
 
   const loadArticles = useCallback(async () => {
     try {
@@ -62,7 +76,7 @@ export default function ArticlesPage() {
           <h1 className="text-3xl font-bold">Articles sur les Cultures du Bénin</h1>
         </div>
         <Button 
-          onClick={() => navigate('/articles/new')}
+          onClick={handleNewArticle}
           className="bg-benin-green hover:bg-benin-green/90"
         >
           <Plus className="mr-2 h-4 w-4" />
@@ -83,9 +97,18 @@ export default function ArticlesPage() {
           {articles.map((article) => (
             <Card 
               key={article.id}
-              className="cursor-pointer hover:shadow-lg transition-shadow"
+              className="cursor-pointer hover:shadow-lg transition-shadow overflow-hidden"
               onClick={() => navigate(`/articles/${article.id}`)}
             >
+              {article.image_url && (
+                <div className="relative w-full h-48">
+                  <img
+                    src={article.image_url}
+                    alt={article.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
               <CardHeader>
                 <div className="flex flex-col space-y-1">
                   <CardTitle className="line-clamp-2">{article.title}</CardTitle>
@@ -104,7 +127,7 @@ export default function ArticlesPage() {
                 </p>
                 <div className="flex justify-between items-center text-sm text-gray-500">
                   <span>
-                    Par {article.profiles?.full_name || article.profiles?.username || 'Anonyme'}
+                    Par {article.profiles?.full_name || article.profiles?.username || 'Auteur inconnu'}
                   </span>
                   <span>{formatDate(article.created_at)}</span>
                 </div>

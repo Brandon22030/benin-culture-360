@@ -17,7 +17,8 @@ import CultureDetailPage from "./pages/cultures/[id]";
 import ArticlesPage from "./pages/articles";
 import NewArticlePage from "./pages/articles/new";
 import ArticleDetailPage from "./pages/articles/[id]";
-import ProfilePage from "./pages/profile";
+import EditArticlePage from "./pages/articles/edit";
+import Profile from "@/pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -40,7 +41,8 @@ const App = () => (
           <Route path="/articles" element={<ArticlesPage />} />
           <Route path="/articles/new" element={<NewArticlePage />} />
           <Route path="/articles/:id" element={<ArticleDetailPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/articles/:id/edit" element={<EditArticlePage />} />
+          <Route path="/profile" element={<Profile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

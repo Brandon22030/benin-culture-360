@@ -86,10 +86,14 @@ const UserMenu = () => {
         <DropdownMenuItem asChild>
           <Link to="/profile" className="cursor-pointer w-full">
             <User className="mr-2 h-4 w-4" />
-            <span>Mon Profil</span>
+            Mon Profil
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer" onClick={handleSignOut} disabled={isLoading}>
+        <DropdownMenuItem 
+          className="cursor-pointer" 
+          onClick={handleSignOut} 
+          disabled={isLoading}
+        >
           <LogOut className="mr-2 h-4 w-4" />
           <span>{isLoading ? 'Déconnexion...' : 'Se déconnecter'}</span>
         </DropdownMenuItem>

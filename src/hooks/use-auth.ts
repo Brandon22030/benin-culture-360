@@ -42,6 +42,21 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, [toast]);
 
+  const refreshUser = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    } catch (error) {
+      console.error('Error refreshing user:', error);
+      toast({
+        title: "Error refreshing user",
+        description: "Failed to refresh user data",
+        variant: "destructive",
+        className: "bg-red-50 text-red-900 border-red-200",
+      });
+    }
+  };
+
   const signOut = useCallback(async () => {
     try {
       await supabase.auth.signOut();
@@ -56,5 +71,5 @@ export function useAuth() {
     }
   }, [toast]);
 
-  return { user, isLoading, signOut };
+  return { user, isLoading, signOut, refreshUser };
 }

@@ -19,9 +19,10 @@ export type Article = {
   id: string;
   title: string;
   content: string;
-  culture_id: string;
+  culture_id: string | null;
   author_id: string;
   created_at: string;
+  image_url: string | null;  // Nouveau champ ajouté
 };
 
 export type Database = {
