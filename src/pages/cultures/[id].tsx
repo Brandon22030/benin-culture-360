@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Edit, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getCultureById } from '@/services/supabase';
 import type { Culture } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
+import Layout from '@/components/Layout';
 
 export default function CultureDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -12,12 +13,6 @@ export default function CultureDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (id) {
-      loadCulture(id);
-    }
-  }, [id, loadCulture]);
 
   const loadCulture = useCallback(async (cultureId: string) => {
     try {
@@ -27,7 +22,7 @@ export default function CultureDetailPage() {
       const e = error as { message?: string };
       toast({
         title: 'Erreur',
-        description: e.message || 'Impossible de charger les détails de la culture',
+        description: e.message || 'Impossible de charger la culture',
         variant: 'destructive',
       });
       navigate('/cultures');
@@ -36,11 +31,19 @@ export default function CultureDetailPage() {
     }
   }, [navigate, toast]);
 
+  useEffect(() => {
+    if (id) {
+      loadCulture(id);
+    }
+  }, [id, loadCulture]);
+
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-benin-green"></div>
-      </div>
+      <Layout>
+        <div className="flex justify-center items-center h-screen">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-benin-green"></div>
+        </div>
+      </Layout>
     );
   }
 
@@ -49,53 +52,36 @@ export default function CultureDetailPage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <Button
-        variant="ghost"
-        onClick={() => navigate('/cultures')}
-        className="mb-6"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Retour aux cultures
-      </Button>
+    <Layout>
+      <div className="container mx-auto py-6">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/cultures')}
+          className="mb-6"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Retour aux cultures
+        </Button>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {culture.image_url && (
-          <div className="relative h-96 rounded-lg overflow-hidden">
-            <img
-              src={culture.image_url}
-              alt={culture.name}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+        <article className="max-w-4xl mx-auto">
+          <header className="mb-8">
+            {culture.image_url && (
+              <div className="relative w-full h-[400px] mb-6 rounded-lg overflow-hidden">
+                <img
+                  src={culture.image_url}
+                  alt={culture.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            <h1 className="text-4xl font-bold mb-4">{culture.name}</h1>
+          </header>
+
+          <div className="prose max-w-none">
+            <p className="whitespace-pre-line">{culture.description}</p>
           </div>
-        )}
-
-        <div className="space-y-6">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-4xl font-bold">{culture.name}</h1>
-              {culture.region && (
-                <p className="text-lg text-gray-600 mt-2">{culture.region}</p>
-              )}
-            </div>
-            <Button
-              onClick={() => navigate(`/cultures/${culture.id}/edit`)}
-              className="bg-benin-green hover:bg-benin-green/90"
-            >
-              <Edit className="mr-2 h-4 w-4" />
-              Modifier
-            </Button>
-          </div>
-
-          {culture.description && (
-            <div className="prose max-w-none">
-              <p className="text-gray-600 whitespace-pre-line">
-                {culture.description}
-              </p>
-            </div>
-          )}
-        </div>
+        </article>
       </div>
-    </div>
+    </Layout>
   );
 }

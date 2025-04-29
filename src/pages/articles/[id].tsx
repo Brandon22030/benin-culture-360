@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAuth } from '@/hooks/use-auth';
+import Layout from '@/components/Layout';
 
 type ArticleWithRelations = Article & {
   cultures: { name: string } | null;
@@ -139,72 +140,74 @@ export default function ArticleDetailPage() {
     isArticleEditable(article.created_at);
 
   return (
-    <div className="container mx-auto py-6">
-      <Button
-        variant="ghost"
-        onClick={() => navigate('/articles')}
-        className="mb-6"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Retour aux articles
-      </Button>
+    <Layout>
+      <div className="container mx-auto py-6">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/articles')}
+          className="mb-6"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Retour aux articles
+        </Button>
 
-      <article className="max-w-4xl mx-auto">
-        <header className="mb-8">
-          {article.image_url && (
-            <div className="relative w-full h-[400px] mb-6 rounded-lg overflow-hidden">
-              <img
-                src={article.image_url}
-                alt={article.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
-          <div className="flex justify-between items-start mb-4">
-            <h1 className="text-4xl font-bold">{article.title}</h1>
-            {user && String(article.author_id).trim() === String(user.id).trim() && (
-              <div className="flex gap-2">
-                {isArticleEditable(article.created_at) && (
-                  <Button
-                    onClick={handleEdit}
-                    className="bg-benin-green hover:bg-benin-green/90"
-                  >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Modifier
-                  </Button>
-                )}
-                <Button
-                  onClick={handleDelete}
-                  variant="destructive"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Supprimer
-                </Button>
+        <article className="max-w-4xl mx-auto">
+          <header className="mb-8">
+            {article.image_url && (
+              <div className="relative w-full h-[400px] mb-6 rounded-lg overflow-hidden">
+                <img
+                  src={article.image_url}
+                  alt={article.title}
+                  className="w-full h-full object-cover"
+                />
               </div>
             )}
-          </div>
-
-          <div className="flex items-center justify-between text-gray-600">
-            <div className="space-y-1">
-              <p>
-                Par {article.profiles?.full_name || article.profiles?.username || 'Auteur inconnu'}
-              </p>
-              {article.cultures?.name && (
-                <p className="text-benin-green">
-                  Culture : {article.cultures.name}
-                </p>
+            <div className="flex justify-between items-start mb-4">
+              <h1 className="text-4xl font-bold">{article.title}</h1>
+              {user && String(article.author_id).trim() === String(user.id).trim() && (
+                <div className="flex gap-2">
+                  {isArticleEditable(article.created_at) && (
+                    <Button
+                      onClick={handleEdit}
+                      className="bg-benin-green hover:bg-benin-green/90"
+                    >
+                      <Edit className="mr-2 h-4 w-4" />
+                      Modifier
+                    </Button>
+                  )}
+                  <Button
+                    onClick={handleDelete}
+                    variant="destructive"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Supprimer
+                  </Button>
+                </div>
               )}
             </div>
-            <time dateTime={article.created_at}>
-              {formatDate(article.created_at)}
-            </time>
-          </div>
-        </header>
 
-        <div className="prose max-w-none">
-          <p className="whitespace-pre-line">{article.content}</p>
-        </div>
-      </article>
-    </div>
-  );
+            <div className="flex items-center justify-between text-gray-600">
+              <div className="space-y-1">
+                <p>
+                  Par {article.profiles?.full_name || article.profiles?.username || 'Auteur inconnu'}
+                </p>
+                {article.cultures?.name && (
+                  <p className="text-benin-green">
+                    Culture : {article.cultures.name}
+                  </p>
+                )}
+              </div>
+              <time dateTime={article.created_at}>
+                {formatDate(article.created_at)}
+              </time>
+            </div>
+          </header>
+
+          <div className="prose max-w-none">
+            <p className="whitespace-pre-line">{article.content}</p>
+          </div>
+        </article>
+      </div>
+    </Layout>
+);
 }

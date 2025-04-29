@@ -16,6 +16,7 @@ import { createArticle, getCultures, supabase } from '@/services/supabase';
 import { useToast } from '@/hooks/use-toast';
 import type { Database } from '@/types/database.types';
 import type { Culture } from '@/types/database.types';
+import Layout from '@/components/Layout';
 
 type ArticleInsert = Database['public']['Tables']['articles']['Insert'];
 
@@ -187,117 +188,119 @@ export default function NewArticlePage() {
   };
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Écrire un nouvel article</h1>
+    <Layout>
+      <div className="container mx-auto py-6">
+        <div className="max-w-2xl mx-auto">
+          <h1 className="text-3xl font-bold mb-6">Écrire un nouvel article</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="title">Titre de l'article *</Label>
-            <Input
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-              placeholder="Un titre captivant..."
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="culture">Culture concernée *</Label>
-            <Select
-              required
-              value={formData.culture_id}
-              onValueChange={handleCultureChange}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionnez une culture" />
-              </SelectTrigger>
-              <SelectContent>
-                {cultures.map((culture) => (
-                  <SelectItem key={culture.id} value={culture.id}>
-                    {culture.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="content">Contenu de l'article *</Label>
-            <Textarea
-              id="content"
-              name="content"
-              value={formData.content}
-              onChange={handleChange}
-              required
-              placeholder="Rédigez votre article ici..."
-              className="h-64 resize-y"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Image de l'article</Label>
-            <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center">
-              {formData.image_url ? (
-                <div className="space-y-4">
-                  <img
-                    src={formData.image_url}
-                    alt="Aperçu"
-                    className="mx-auto max-h-48 rounded-lg"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setFormData(prev => ({ ...prev, image_url: null }))}
-                  >
-                    Changer l'image
-                  </Button>
-                </div>
-              ) : (
-                <>
-                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-semibold">Télécharger une image</h3>
-                  <p className="mt-1 text-xs text-gray-500">PNG, JPG jusqu'à 5MB</p>
-                  <div className="mt-4">
-                    <Input
-                      id="image"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                    <Label
-                      htmlFor="image"
-                      className="cursor-pointer inline-flex items-center rounded-md bg-benin-green px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-benin-green/90"
-                    >
-                      Parcourir les fichiers
-                    </Label>
-                  </div>
-                </>
-              )}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="title">Titre de l'article *</Label>
+              <Input
+                id="title"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                required
+                placeholder="Un titre captivant..."
+              />
             </div>
-          </div>
 
-          <div className="flex gap-4">
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="bg-benin-green hover:bg-benin-green/90"
-            >
-              {isLoading ? 'Publication...' : 'Publier l\'article'}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate('/articles')}
-            >
-              Annuler
-            </Button>
-          </div>
-        </form>
+            <div className="space-y-2">
+              <Label htmlFor="culture">Culture concernée *</Label>
+              <Select
+                required
+                value={formData.culture_id}
+                onValueChange={handleCultureChange}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionnez une culture" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cultures.map((culture) => (
+                    <SelectItem key={culture.id} value={culture.id}>
+                      {culture.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="content">Contenu de l'article *</Label>
+              <Textarea
+                id="content"
+                name="content"
+                value={formData.content}
+                onChange={handleChange}
+                required
+                placeholder="Rédigez votre article ici..."
+                className="h-64 resize-y"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Image de l'article</Label>
+              <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center">
+                {formData.image_url ? (
+                  <div className="space-y-4">
+                    <img
+                      src={formData.image_url}
+                      alt="Aperçu"
+                      className="mx-auto max-h-48 rounded-lg"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setFormData(prev => ({ ...prev, image_url: null }))}
+                    >
+                      Changer l'image
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    <h3 className="mt-2 text-sm font-semibold">Télécharger une image</h3>
+                    <p className="mt-1 text-xs text-gray-500">PNG, JPG jusqu'à 5MB</p>
+                    <div className="mt-4">
+                      <Input
+                        id="image"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                      <Label
+                        htmlFor="image"
+                        className="cursor-pointer inline-flex items-center rounded-md bg-benin-green px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-benin-green/90"
+                      >
+                        Parcourir les fichiers
+                      </Label>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="bg-benin-green hover:bg-benin-green/90"
+              >
+                {isLoading ? 'Publication...' : 'Publier l\'article'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate('/articles')}
+              >
+                Annuler
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }
