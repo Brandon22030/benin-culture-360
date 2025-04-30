@@ -19,6 +19,9 @@ import ArticleDetailPage from "./pages/articles/[id]";
 import EditArticlePage from "./pages/articles/edit";
 import Profile from "@/pages/Profile";
 import { AuthProvider } from "@/hooks/use-auth.tsx"; // Notez l'extension .tsx
+import DashboardPage from "@/pages/admin/DashboardPage";
+import GalleryDetails from "@/pages/admin/contributions/gallery/GalleryDetails";
+import MusicDetails from "@/pages/admin/contributions/music/MusicDetails";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +47,15 @@ const App = () => (
             <Route path="/articles/:id" element={<ArticleDetailPage />} />
             <Route path="/articles/:id/edit" element={<EditArticlePage />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/admin/dashboard" element={<DashboardPage />} />
+            <Route
+              path="/admin/contributions/gallery/:id"
+              element={<GalleryDetails />}
+            />{" "}
+            <Route
+              path="/admin/contributions/music/:id"
+              element={<MusicDetails />}
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
