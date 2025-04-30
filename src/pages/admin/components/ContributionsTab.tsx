@@ -56,6 +56,10 @@ const ContributionsTab = () => {
     }
   };
 
+  // Calculer le nombre de contributions en attente
+  const pendingGalleryCount = galleryPending.filter(item => item.status === 'pending').length;
+  const pendingMusicCount = musicPending.filter(item => item.status === 'pending').length;
+
   const handleStatusChange = async (
     id: string,
     status: string,
@@ -150,10 +154,10 @@ const ContributionsTab = () => {
       <Tabs defaultValue="images">
         <TabsList className="w-full grid grid-cols-2">
           <TabsTrigger value="images">
-            Images en attente ({galleryPending.length})
+            Images en attente ({pendingGalleryCount})
           </TabsTrigger>
           <TabsTrigger value="audio">
-            Audio en attente ({musicPending.length})
+            Audio en attente ({pendingMusicCount})
           </TabsTrigger>
         </TabsList>
 

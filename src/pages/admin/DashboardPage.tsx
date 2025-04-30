@@ -5,8 +5,8 @@ import Layout from '@/components/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/services/supabase-client';
 import ContributionsTab from './components/ContributionsTab';
-// import UsersTab from './components/UsersTab';
-// import StatsTab from './components/StatsTab';
+import UsersTab from './components/UsersTab';
+import StatsTab from './components/StatsTab';
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -77,13 +77,13 @@ const DashboardPage = () => {
             <ContributionsTab />
           </TabsContent>
 
-          {/* <TabsContent value="users">
+          <TabsContent value="users">
             <UsersTab />
           </TabsContent>
 
           <TabsContent value="stats">
             <StatsTab />
-          </TabsContent> */}
+          </TabsContent>
         </Tabs>
       </div>
     </Layout>

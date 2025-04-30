@@ -56,12 +56,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, userData: any) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: userData }
+        options: { 
+          data: userData
+        }
       });
       if (error) throw error;
+
+      // Attendre que l'utilisateur soit créé
+      if (data.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            email: data.user.email,
+            username: userData.username || email.split('@')[0],
+            full_name: userData.full_name || '',
+          });
+
+        if (profileError) throw profileError;
+      }
     } catch (error: any) {
       toast.error(error.message || "Erreur d'inscription");
       throw error;
