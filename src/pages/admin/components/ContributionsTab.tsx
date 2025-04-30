@@ -19,6 +19,17 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/services/supabase-client";
 
+const getStatusStyle = (status: string) => {
+  switch (status) {
+    case 'approved':
+      return 'bg-green-100 text-green-800';
+    case 'rejected':
+      return 'bg-red-100 text-red-800';
+    default:
+      return 'bg-yellow-100 text-black';
+  }
+};
+
 const ContributionsTab = () => {
   const [galleryPending, setGalleryPending] = useState([]);
   const [musicPending, setMusicPending] = useState([]);
@@ -52,6 +63,55 @@ const ContributionsTab = () => {
   ) => {
     try {
       const table = type === "gallery" ? "gallery_pending" : "music_pending";
+      
+      // Si le statut est "approved", on récupère d'abord les données de la contribution
+      if (status === "approved") {
+        const { data: contribution, error: fetchError } = await supabase
+          .from(table)
+          .select("*")
+          .eq("id", id)
+          .single();
+
+        if (fetchError) throw fetchError;
+
+        // On crée l'entrée dans la table correspondante en tant qu'admin
+        if (type === "gallery") {
+          const { error: insertError } = await supabase
+            .rpc('create_approved_gallery', {
+              p_title: contribution.title,
+              p_description: contribution.description,
+              p_image_url: contribution.image_url,
+              p_category: contribution.category,
+              p_region: contribution.region,
+              p_credit: contribution.credit,
+              p_source: contribution.source,
+              p_contributor_id: contribution.contributor_id,
+              p_created_at: contribution.created_at || new Date().toISOString()
+            });
+
+          if (insertError) throw insertError;
+        } else {
+          const { error: insertError } = await supabase
+            .rpc('create_approved_music', {
+              p_title: contribution.title,
+              p_artist: contribution.artist,
+              p_description: contribution.description,
+              p_audio_url: contribution.audio_url,
+              p_image_url: contribution.image_url,
+              p_category: contribution.category,
+              p_region: contribution.region,
+              p_credit: contribution.credit,
+              p_contributor_id: contribution.contributor_id,
+              p_created_at: contribution.created_at || new Date().toISOString(),
+              p_album: contribution.album,
+              p_year: contribution.year
+            });
+
+          if (insertError) throw insertError;
+        }
+      }
+
+      // Mise à jour du statut dans la table pending
       const { error } = await supabase
         .from(table)
         .update({ status })
@@ -62,6 +122,24 @@ const ContributionsTab = () => {
       fetchPendingContributions();
     } catch (error) {
       console.error("Erreur lors de la mise à jour du statut:", error);
+    }
+  };
+
+  const handleDelete = async (id: string, type: "gallery" | "music") => {
+    try {
+      const table = type === "gallery" ? "gallery_pending" : "music_pending";
+      
+      const { error } = await supabase
+        .from(table)
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      // Rafraîchir la liste après la suppression
+      fetchPendingContributions();
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
     }
   };
 
@@ -99,12 +177,20 @@ const ContributionsTab = () => {
                     </p>
 
                     <div className="flex justify-between items-center mt-4">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => navigate(`/admin/contributions/gallery/${item.id}`)}
-                      >
-                        Détails
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => navigate(`/admin/contributions/gallery/${item.id}`)}
+                        >
+                          Détails
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          onClick={() => handleDelete(item.id, "gallery")}
+                        >
+                          Supprimer
+                        </Button>
+                      </div>
 
                       <Select
                         defaultValue={item.status}
@@ -112,11 +198,11 @@ const ContributionsTab = () => {
                           handleStatusChange(item.id, value, "gallery")
                         }
                       >
-                        <SelectTrigger className="w-[180px]">
+                        <SelectTrigger className={`w-[180px] ${getStatusStyle(item.status)}`}>
                           <SelectValue placeholder="Statut" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="pending">En attente</SelectItem>
+                          <SelectItem value="pending">En attente...</SelectItem>
                           <SelectItem value="approved">Approuvé</SelectItem>
                           <SelectItem value="rejected">Rejeté</SelectItem>
                         </SelectContent>
@@ -154,12 +240,20 @@ const ContributionsTab = () => {
                     </p>
 
                     <div className="flex justify-between items-center mt-4">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => navigate(`/admin/contributions/music/${item.id}`)}
-                      >
-                        Détails
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => navigate(`/admin/contributions/music/${item.id}`)}
+                        >
+                          Détails
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          onClick={() => handleDelete(item.id, "music")}
+                        >
+                          Supprimer
+                        </Button>
+                      </div>
 
                       <Select
                         defaultValue={item.status}
@@ -167,11 +261,11 @@ const ContributionsTab = () => {
                           handleStatusChange(item.id, value, "music")
                         }
                       >
-                        <SelectTrigger className="w-[180px]">
+                        <SelectTrigger className={`w-[180px] ${getStatusStyle(item.status)}`}>
                           <SelectValue placeholder="Statut" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="pending">En attente</SelectItem>
+                          <SelectItem value="pending">En attente...</SelectItem>
                           <SelectItem value="approved">Approuvé</SelectItem>
                           <SelectItem value="rejected">Rejeté</SelectItem>
                         </SelectContent>

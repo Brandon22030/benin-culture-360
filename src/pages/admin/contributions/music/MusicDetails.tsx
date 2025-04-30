@@ -146,9 +146,14 @@ const MusicDetails = () => {
               <div className="bg-muted p-6 rounded-lg">
                 <h3 className="text-xl font-semibold mb-4">Informations de soumission</h3>
                 <div className="space-y-3">
-                  <p><strong>Date:</strong> {new Date(item.created_at).toLocaleDateString('fr-FR')}</p>
+                  <p><strong>Contribution fait le:</strong> {new Date(item.created_at).toLocaleDateString('fr-FR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}</p>
                   <p><strong>Soumis par:</strong> {item.profiles?.full_name || item.profiles?.username || 'Utilisateur inconnu'}</p>
-                  <p><strong>Email:</strong> {item.profiles?.user_email || 'Non disponible'}</p>
                   <p><strong>Statut actuel:</strong> {item.status}</p>
                 </div>
               </div>
