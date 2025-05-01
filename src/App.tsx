@@ -17,7 +17,7 @@ import ArticlesPage from "./pages/articles";
 import NewArticlePage from "./pages/articles/new";
 import ArticleDetailPage from "./pages/articles/[id]";
 import EditArticlePage from "./pages/articles/edit";
-import Profile from "@/pages/Profile";
+import Profile from "@/pages/profile";
 import { AuthProvider } from "@/hooks/use-auth.tsx"; // Notez l'extension .tsx
 import DashboardPage from "@/pages/admin/DashboardPage";
 import GalleryDetails from "@/pages/admin/contributions/gallery/GalleryDetails";
