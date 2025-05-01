@@ -10,6 +10,11 @@ import {
   Download, Info, Music, Clock, Disc3, X
 } from 'lucide-react';
 
+// Fonction utilitaire pour traiter les URLs d'images
+const getImageUrl = (url: string | null) => {
+  return url || "/images/audio/placeholder.jpg";
+};
+
 const AudioPage = () => {
   const [currentTrack, setCurrentTrack] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -19,10 +24,86 @@ const AudioPage = () => {
   const [trackDetails, setTrackDetails] = useState<string | null>(null);
   const [audioTracks, setAudioTracks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  // Déplacer ces déclarations avant le useEffect
+  const categories = Array.from(new Set(audioTracks.map(track => track.category)));
+  const filteredTracks = selectedCategory 
+    ? audioTracks.filter(track => track.category === selectedCategory) 
+    : audioTracks;
+  const currentTrackData = audioTracks.find(track => track.id === currentTrack);
+  const detailsTrackData = audioTracks.find(track => track.id === trackDetails);
 
   useEffect(() => {
     fetchAudioTracks();
   }, []);
+
+  useEffect(() => {
+    if (currentTrack && currentTrackData) {
+      // Si un audio existe déjà, on le nettoie
+      if (audioRef) {
+        audioRef.pause();
+        audioRef.remove();
+      }
+  
+      const audio = new Audio(currentTrackData.audio_url);
+      audio.volume = volume / 100;
+      audio.muted = isMuted;
+      
+      audio.addEventListener('timeupdate', () => {
+        setCurrentTime(audio.currentTime);
+      });
+      
+      audio.addEventListener('loadedmetadata', () => {
+        setDuration(audio.duration);
+      });
+      
+      audio.addEventListener('ended', () => {
+        setIsPlaying(false);
+        setCurrentTime(0);
+      });
+      
+      setAudioRef(audio);
+      
+      if (isPlaying) {
+        audio.play().catch(error => {
+          console.error('Erreur lors de la lecture:', error);
+          setIsPlaying(false);
+        });
+      }
+      
+      return () => {
+        audio.pause();
+        audio.remove();
+      };
+    }
+  }, [currentTrack, currentTrackData]);
+
+  // Effet séparé pour la gestion du volume et de la lecture
+  useEffect(() => {
+    if (audioRef) {
+      audioRef.volume = volume / 100;
+      audioRef.muted = isMuted;
+      
+      if (isPlaying) {
+        audioRef.play().catch(error => {
+          console.error('Erreur lors de la lecture:', error);
+          setIsPlaying(false);
+        });
+      } else {
+        audioRef.pause();
+      }
+    }
+  }, [volume, isMuted, isPlaying]);
+
+  const handleTimeChange = (value: number[]) => {
+    if (audioRef) {
+      audioRef.currentTime = value[0];
+      setCurrentTime(value[0]);
+    }
+  };
 
   const fetchAudioTracks = async () => {
     try {
@@ -40,19 +121,23 @@ const AudioPage = () => {
     }
   };
 
-  const categories = Array.from(new Set(audioTracks.map(track => track.category)));
-  const filteredTracks = selectedCategory 
-    ? audioTracks.filter(track => track.category === selectedCategory) 
-    : audioTracks;
-  const currentTrackData = audioTracks.find(track => track.id === currentTrack);
-  const detailsTrackData = audioTracks.find(track => track.id === trackDetails);
-  
   const handlePlayPause = (trackId: string) => {
     if (currentTrack === trackId) {
+      // Si on clique sur la même piste, on met en pause/reprend la lecture
       setIsPlaying(!isPlaying);
     } else {
+      // Si on change de piste
+      if (audioRef) {
+        // On arrête complètement la lecture en cours
+        audioRef.pause();
+        audioRef.currentTime = 0;
+        audioRef.remove(); // On supprime l'élément audio précédent
+        setAudioRef(null); // On réinitialise la référence
+      }
+      // On change de piste et on démarre la lecture
       setCurrentTrack(trackId);
       setIsPlaying(true);
+      setCurrentTime(0); // On réinitialise le temps de lecture
     }
   };
   
@@ -95,15 +180,16 @@ const AudioPage = () => {
           {/* Audio tracks list */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
             {filteredTracks.map(track => (
-              <div 
-                key={track.id} 
-                className="benin-card flex overflow-hidden group"
-              >
+              <div key={track.id} className="benin-card flex overflow-hidden group">
                 <div className="w-1/3 relative overflow-hidden">
+                  {/* Dans la liste des pistes audio */}
                   <img 
-                    src={track.imageUrl || "/images/audio/placeholder.jpg"} 
+                    src={getImageUrl(track.image_url)}
                     alt={track.title}
                     className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500"
+                    onError={(e) => {
+                      e.currentTarget.src = "/images/audio/placeholder.jpg";
+                    }}
                   />
                   <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                     <button 
@@ -167,7 +253,7 @@ const AudioPage = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 overflow-hidden rounded bg-gray-100 flex-shrink-0">
                     <img 
-                      src={currentTrackData?.imageUrl || "/images/audio/placeholder.jpg"} 
+                      src={getImageUrl(currentTrackData?.image_url)} 
                       alt={currentTrackData?.title}
                       className="w-full h-full object-cover"
                     />
@@ -201,10 +287,11 @@ const AudioPage = () => {
                     
                     <div className="flex items-center">
                       <Slider
-                        value={[50]} // This would be the current time in a real player
+                        value={[currentTime]}
                         min={0}
-                        max={100}
+                        max={duration}
                         step={1}
+                        onValueChange={handleTimeChange}
                         className="h-1"
                       />
                     </div>
@@ -253,14 +340,14 @@ const AudioPage = () => {
                   <Tabs defaultValue="info">
                     <TabsList>
                       <TabsTrigger value="info">Information</TabsTrigger>
-                      <TabsTrigger value="lyrics">Contexte</TabsTrigger>
+                      {/* <TabsTrigger value="lyrics">Contexte</TabsTrigger> */}
                     </TabsList>
                     
                     <TabsContent value="info" className="mt-4">
                       <div className="flex items-center gap-4 mb-6">
                         <div className="w-1/3 aspect-square overflow-hidden rounded-lg">
                           <img 
-                            src={detailsTrackData?.imageUrl || "/images/audio/placeholder.jpg"} 
+                            src={getImageUrl(detailsTrackData?.image_url)} 
                             alt={detailsTrackData?.title}
                             className="w-full h-full object-cover"
                           />
@@ -270,24 +357,25 @@ const AudioPage = () => {
                           <div className="flex items-center gap-2">
                             <Music size={16} className="text-benin-red" />
                             <span className="text-sm text-gray-600">
-                              {detailsTrackData?.category}
+                              {detailsTrackData?.category || "Catégorie non spécifiée"}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Clock size={16} className="text-benin-red" />
                             <span className="text-sm text-gray-600">
-                              {detailsTrackData?.duration}
+                              {detailsTrackData?.duration || "Durée non spécifiée"}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Disc3 size={16} className="text-benin-red" />
                             <span className="text-sm text-gray-600">
-                              {`Région: ${detailsTrackData?.regionId}`}
+                              {detailsTrackData?.region ? `Région: ${detailsTrackData.region}` : "Région non spécifiée"}
                             </span>
                           </div>
                           <Button 
                             size="sm" 
                             className="bg-benin-red hover:bg-benin-red/90 flex items-center gap-2 mt-2"
+                            onClick={() => window.open(detailsTrackData.audio_url, '_blank')}
                           >
                             <Download size={16} />
                             Télécharger
@@ -298,29 +386,34 @@ const AudioPage = () => {
                       <div className="pt-4 border-t border-gray-100">
                         <h4 className="font-medium mb-2">Description</h4>
                         <p className="text-gray-600">
-                          {detailsTrackData?.description}
+                          {detailsTrackData?.description || "Aucune description disponible"}
                         </p>
                       </div>
                     </TabsContent>
                     
                     <TabsContent value="lyrics" className="mt-4">
-                      <p className="text-gray-600 italic">
-                        Informations contextuelles sur cette pièce musicale traditionnelle, 
-                        incluant son origine, son usage culturel et sa signification.
-                      </p>
-                      {/* Placeholder for lyrics or context info */}
-                      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                        <h4 className="font-medium mb-2">Contexte culturel</h4>
-                        <p className="text-gray-600 mb-3">
-                          Cette pièce musicale traditionnelle est souvent jouée lors de 
-                          cérémonies importantes dans la région {detailsTrackData?.regionId}.
+                      {detailsTrackData?.context ? (
+                        <>
+                          <p className="text-gray-600 italic">
+                            {detailsTrackData.context.introduction || "Informations contextuelles sur cette pièce musicale traditionnelle."}
+                          </p>
+                          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                            <h4 className="font-medium mb-2">Contexte culturel</h4>
+                            <p className="text-gray-600 mb-3">
+                              {detailsTrackData.context.cultural_context || 
+                               `Cette pièce musicale traditionnelle est souvent jouée lors de cérémonies importantes dans la région ${detailsTrackData?.region || 'du Bénin'}.`}
+                            </p>
+                            <p className="text-gray-600">
+                              {detailsTrackData.context.significance || 
+                               "Elle représente un élément important du patrimoine immatériel du Bénin, transmis de génération en génération pour préserver les connaissances culturelles et spirituelles de la communauté."}
+                            </p>
+                          </div>
+                        </>
+                      ) : (
+                        <p className="text-gray-600 italic">
+                          Informations contextuelles non disponibles pour cette pièce musicale.
                         </p>
-                        <p className="text-gray-600">
-                          Elle représente un élément important du patrimoine immatériel du Bénin, 
-                          transmis de génération en génération pour préserver les connaissances 
-                          culturelles et spirituelles de la communauté.
-                        </p>
-                      </div>
+                      )}
                     </TabsContent>
                   </Tabs>
                   
