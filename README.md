@@ -20,17 +20,20 @@ Une application web interactive pour explorer et découvrir la riche culture bé
 ## 🛠️ Installation
 
 1. Clonez le dépôt :
+
 ```bash
 git clone https://github.com/[votre-nom]/benin-culture-explorer-360.git
 cd benin-culture-explorer-360
 ```
 
 2. Installez les dépendances :
+
 ```bash
 npm install
 ```
 
 3. Copiez le fichier d'environnement exemple :
+
 ```bash
 cp .env.example .env
 ```
@@ -38,6 +41,7 @@ cp .env.example .env
 4. Configurez vos variables d'environnement dans le fichier `.env`
 
 5. Lancez l'application en mode développement :
+
 ```bash
 npm run dev
 ```

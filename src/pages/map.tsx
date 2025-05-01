@@ -1,22 +1,22 @@
-import { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { useToast } from '@/hooks/use-toast';
+import { useEffect, useRef, useState } from "react";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import { useToast } from "@/hooks/use-toast";
 
 // Définir la clé d'API Mapbox
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN || '';
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN || "";
 
 // Coordonnées du Bénin
 const BENIN_BOUNDS = {
   north: 12.4183,
-  south: 6.2250,
+  south: 6.225,
   east: 3.8517,
-  west: 0.7743
+  west: 0.7743,
 };
 
 const BENIN_CENTER = {
   lng: 2.3158,
-  lat: 9.3217
+  lat: 9.3217,
 };
 
 export default function MapPage() {
@@ -40,31 +40,35 @@ export default function MapPage() {
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: "mapbox://styles/mapbox/streets-v12",
       center: [BENIN_CENTER.lng, BENIN_CENTER.lat],
       zoom: zoom,
       maxBounds: [
         [BENIN_BOUNDS.west, BENIN_BOUNDS.south],
-        [BENIN_BOUNDS.east, BENIN_BOUNDS.north]
-      ]
+        [BENIN_BOUNDS.east, BENIN_BOUNDS.north],
+      ],
     });
 
     // Ajouter les contrôles de navigation
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    map.current.addControl(new mapboxgl.NavigationControl(), "top-right");
     map.current.addControl(new mapboxgl.FullscreenControl());
-    map.current.addControl(new mapboxgl.GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true
-      },
-      trackUserLocation: true,
-      showUserHeading: true
-    }));
+    map.current.addControl(
+      new mapboxgl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true,
+        },
+        trackUserLocation: true,
+        showUserHeading: true,
+      }),
+    );
 
     // Ajouter une échelle
-    map.current.addControl(new mapboxgl.ScaleControl({
-      maxWidth: 100,
-      unit: 'metric'
-    }));
+    map.current.addControl(
+      new mapboxgl.ScaleControl({
+        maxWidth: 100,
+        unit: "metric",
+      }),
+    );
 
     return () => {
       if (map.current) {

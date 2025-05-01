@@ -1,30 +1,32 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/use-auth';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { createCulture, supabase } from '@/services/supabase';
-import { useToast } from '@/hooks/use-toast';
-import type { Database } from '@/types/database.types';
-import { Upload } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { createCulture, supabase } from "@/services/supabase";
+import { useToast } from "@/hooks/use-toast";
+import type { Database } from "@/types/database.types";
+import { Upload } from "lucide-react";
 
-type CultureInsert = Database['public']['Tables']['cultures']['Insert'];
+type CultureInsert = Database["public"]["Tables"]["cultures"]["Insert"];
 
 export default function NewCulturePage() {
   const { user } = useAuth();
   const [formData, setFormData] = useState<CultureInsert>({
-    name: '',
-    description: '',
-    region: '',
-    image_url: '',
+    name: "",
+    description: "",
+    region: "",
+    image_url: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     try {
       const file = event.target.files?.[0];
       if (!file) return;
@@ -32,19 +34,19 @@ export default function NewCulturePage() {
       // Vérification de la taille du fichier (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast({
-          title: 'Erreur',
-          description: 'L\'image ne doit pas dépasser 5MB',
-          variant: 'destructive',
+          title: "Erreur",
+          description: "L'image ne doit pas dépasser 5MB",
+          variant: "destructive",
         });
         return;
       }
 
       // Vérification du type de fichier
-      if (!file.type.startsWith('image/')) {
+      if (!file.type.startsWith("image/")) {
         toast({
-          title: 'Erreur',
-          description: 'Veuillez sélectionner une image',
-          variant: 'destructive',
+          title: "Erreur",
+          description: "Veuillez sélectionner une image",
+          variant: "destructive",
         });
         return;
       }
@@ -53,35 +55,35 @@ export default function NewCulturePage() {
 
       // Upload vers Cloudinary
       const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', 'benin_culture_360');
-      formData.append('cloud_name', import.meta.env.VITE_CLOUDINARY_CLOUD_NAME);
+      formData.append("file", file);
+      formData.append("upload_preset", "benin_culture_360");
+      formData.append("cloud_name", import.meta.env.VITE_CLOUDINARY_CLOUD_NAME);
 
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
         {
-          method: 'POST',
-          body: formData
-        }
+          method: "POST",
+          body: formData,
+        },
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error?.message || 'Erreur lors de l\'upload');
+        throw new Error(data.error?.message || "Erreur lors de l'upload");
       }
 
-      setFormData(prev => ({ ...prev, image_url: data.secure_url }));
+      setFormData((prev) => ({ ...prev, image_url: data.secure_url }));
       toast({
-        title: 'Succès',
-        description: 'L\'image a été téléchargée avec succès',
+        title: "Succès",
+        description: "L'image a été téléchargée avec succès",
       });
     } catch (error) {
-      console.error('Erreur upload:', error);
+      console.error("Erreur upload:", error);
       toast({
-        title: 'Erreur',
-        description: 'Impossible de télécharger l\'image',
-        variant: 'destructive',
+        title: "Erreur",
+        description: "Impossible de télécharger l'image",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -95,29 +97,29 @@ export default function NewCulturePage() {
     try {
       if (!user) {
         toast({
-          title: 'Erreur',
-          description: 'Vous devez être connecté pour créer une culture',
-          variant: 'destructive',
+          title: "Erreur",
+          description: "Vous devez être connecté pour créer une culture",
+          variant: "destructive",
         });
         return;
       }
 
       await createCulture({
         ...formData,
-        author_id: user.id  // Ajout de l'author_id
+        author_id: user.id, // Ajout de l'author_id
       });
 
       toast({
-        title: 'Succès',
-        description: 'La culture a été ajoutée avec succès',
+        title: "Succès",
+        description: "La culture a été ajoutée avec succès",
       });
-      navigate('/cultures');
+      navigate("/cultures");
     } catch (error) {
       const e = error as { message?: string };
       toast({
-        title: 'Erreur',
-        description: e.message || 'Impossible d\'ajouter la culture',
-        variant: 'destructive',
+        title: "Erreur",
+        description: e.message || "Impossible d'ajouter la culture",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -125,7 +127,7 @@ export default function NewCulturePage() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -134,7 +136,9 @@ export default function NewCulturePage() {
   return (
     <div className="container mx-auto py-6">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Ajouter une nouvelle culture</h1>
+        <h1 className="text-3xl font-bold mb-6">
+          Ajouter une nouvelle culture
+        </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
@@ -187,7 +191,9 @@ export default function NewCulturePage() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setFormData(prev => ({ ...prev, image_url: '' }))}
+                    onClick={() =>
+                      setFormData((prev) => ({ ...prev, image_url: "" }))
+                    }
                   >
                     Changer l'image
                   </Button>
@@ -195,8 +201,12 @@ export default function NewCulturePage() {
               ) : (
                 <>
                   <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-semibold">Télécharger une image</h3>
-                  <p className="mt-1 text-xs text-gray-500">PNG, JPG jusqu'à 5MB</p>
+                  <h3 className="mt-2 text-sm font-semibold">
+                    Télécharger une image
+                  </h3>
+                  <p className="mt-1 text-xs text-gray-500">
+                    PNG, JPG jusqu'à 5MB
+                  </p>
                   <div className="mt-4">
                     <Input
                       id="image"
@@ -223,12 +233,12 @@ export default function NewCulturePage() {
               disabled={isLoading}
               className="bg-benin-green hover:bg-benin-green/90"
             >
-              {isLoading ? 'Enregistrement...' : 'Enregistrer la culture'}
+              {isLoading ? "Enregistrement..." : "Enregistrer la culture"}
             </Button>
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate('/cultures')}
+              onClick={() => navigate("/cultures")}
             >
               Annuler
             </Button>

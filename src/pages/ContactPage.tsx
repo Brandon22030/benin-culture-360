@@ -1,7 +1,7 @@
-import Layout from '@/components/Layout';
-import { ArrowLeft, Mail, Phone, MapPin } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import Layout from "@/components/Layout";
+import { ArrowLeft, Mail, Phone, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export default function ContactPage() {
   const navigate = useNavigate();
@@ -9,26 +9,27 @@ export default function ContactPage() {
   return (
     <Layout>
       <div className="container mx-auto py-12">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="mb-6"
-        >
+        <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Retour à l'accueil
         </Button>
 
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold font-title mb-8">Contactez-nous</h1>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Formulaire de contact */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-2xl font-semibold mb-6">Envoyez-nous un message</h2>
-              
+              <h2 className="text-2xl font-semibold mb-6">
+                Envoyez-nous un message
+              </h2>
+
               <form className="space-y-4">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Nom complet
                   </label>
                   <input
@@ -41,7 +42,10 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Email
                   </label>
                   <input
@@ -54,7 +58,10 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="subject"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Sujet
                   </label>
                   <input
@@ -67,7 +74,10 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Message
                   </label>
                   <textarea
@@ -79,7 +89,10 @@ export default function ContactPage() {
                   ></textarea>
                 </div>
 
-                <Button type="submit" className="w-full bg-benin-green hover:bg-benin-green/90">
+                <Button
+                  type="submit"
+                  className="w-full bg-benin-green hover:bg-benin-green/90"
+                >
                   Envoyer le message
                 </Button>
               </form>
@@ -94,7 +107,11 @@ export default function ContactPage() {
                     <MapPin className="text-benin-green mt-1" />
                     <div>
                       <h3 className="font-semibold">Adresse</h3>
-                      <p className="text-gray-600">123 Rue du Patrimoine<br />Cotonou, Bénin</p>
+                      <p className="text-gray-600">
+                        123 Rue du Patrimoine
+                        <br />
+                        Cotonou, Bénin
+                      </p>
                     </div>
                   </div>
 
@@ -102,7 +119,9 @@ export default function ContactPage() {
                     <Mail className="text-benin-green mt-1" />
                     <div>
                       <h3 className="font-semibold">Email</h3>
-                      <p className="text-gray-600">contact@beninculture360.com</p>
+                      <p className="text-gray-600">
+                        contact@beninculture360.com
+                      </p>
                     </div>
                   </div>
 

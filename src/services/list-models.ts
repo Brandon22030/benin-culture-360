@@ -3,7 +3,7 @@ export async function listModels() {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`
+      `https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`,
     );
     const data = await response.json();
 
@@ -12,7 +12,7 @@ export async function listModels() {
       console.log(`Nom : ${model.name}`);
       console.log(`  Description : ${model.description}`);
       console.log(
-        `  GenerationMethods : ${model.supportedGenerationMethods?.join(", ")}`
+        `  GenerationMethods : ${model.supportedGenerationMethods?.join(", ")}`,
       );
       console.log("---");
     });

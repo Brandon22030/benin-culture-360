@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Upload } from 'lucide-react';
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Upload } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -12,13 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createArticle, getCultures, supabase } from '@/services/supabase';
-import { useToast } from '@/hooks/use-toast';
-import type { Database } from '@/types/database.types';
-import type { Culture } from '@/types/database.types';
-import Layout from '@/components/Layout';
+import { createArticle, getCultures, supabase } from "@/services/supabase";
+import { useToast } from "@/hooks/use-toast";
+import type { Database } from "@/types/database.types";
+import type { Culture } from "@/types/database.types";
+import Layout from "@/components/Layout";
 
-type ArticleInsert = Database['public']['Tables']['articles']['Insert'];
+type ArticleInsert = Database["public"]["Tables"]["articles"]["Insert"];
 
 type ArticleFormData = {
   title: string;
@@ -30,11 +30,11 @@ type ArticleFormData = {
 
 export default function NewArticlePage() {
   const [formData, setFormData] = useState<ArticleFormData>({
-    title: '',
-    content: '',
+    title: "",
+    content: "",
     culture_id: null,
-    author_id: '',
-    image_url: null
+    author_id: "",
+    image_url: null,
   });
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,19 +44,19 @@ export default function NewArticlePage() {
     // Vérification de la taille du fichier (5MB max)
     if (file.size > 5 * 1024 * 1024) {
       toast({
-        title: 'Erreur',
-        description: 'L\'image ne doit pas dépasser 5MB',
-        variant: 'destructive',
+        title: "Erreur",
+        description: "L'image ne doit pas dépasser 5MB",
+        variant: "destructive",
       });
       return;
     }
 
     // Vérification du type de fichier
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       toast({
-        title: 'Erreur',
-        description: 'Veuillez sélectionner une image',
-        variant: 'destructive',
+        title: "Erreur",
+        description: "Veuillez sélectionner une image",
+        variant: "destructive",
       });
       return;
     }
@@ -66,35 +66,35 @@ export default function NewArticlePage() {
     try {
       // Upload vers Cloudinary
       const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', 'benin_culture_360');
-      formData.append('cloud_name', import.meta.env.VITE_CLOUDINARY_CLOUD_NAME);
+      formData.append("file", file);
+      formData.append("upload_preset", "benin_culture_360");
+      formData.append("cloud_name", import.meta.env.VITE_CLOUDINARY_CLOUD_NAME);
 
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
         {
-          method: 'POST',
-          body: formData
-        }
+          method: "POST",
+          body: formData,
+        },
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error?.message || 'Erreur lors de l\'upload');
+        throw new Error(data.error?.message || "Erreur lors de l'upload");
       }
 
-      setFormData(prev => ({ ...prev, image_url: data.secure_url }));
+      setFormData((prev) => ({ ...prev, image_url: data.secure_url }));
       toast({
-        title: 'Succès',
-        description: 'L\'image a été téléchargée avec succès',
+        title: "Succès",
+        description: "L'image a été téléchargée avec succès",
       });
     } catch (error) {
-      console.error('Erreur upload:', error);
+      console.error("Erreur upload:", error);
       toast({
-        title: 'Erreur',
-        description: 'Impossible de télécharger l\'image',
-        variant: 'destructive',
+        title: "Erreur",
+        description: "Impossible de télécharger l'image",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -113,9 +113,9 @@ export default function NewArticlePage() {
     } catch (error) {
       const e = error as { message?: string };
       toast({
-        title: 'Erreur',
-        description: e.message || 'Impossible de charger les cultures',
-        variant: 'destructive',
+        title: "Erreur",
+        description: e.message || "Impossible de charger les cultures",
+        variant: "destructive",
       });
     }
   }, [toast]);
@@ -127,27 +127,32 @@ export default function NewArticlePage() {
   useEffect(() => {
     // Get the current user's ID and ensure profile exists
     const getCurrentUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (session?.user) {
         const userId = session.user.id;
-        setFormData(prev => ({ ...prev, author_id: userId }));
+        setFormData((prev) => ({ ...prev, author_id: userId }));
 
         // Vérifier si le profil existe, sinon le créer
         const { data: profile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('id', userId)
+          .from("profiles")
+          .select("id")
+          .eq("id", userId)
           .single();
 
         if (!profile) {
-          await supabase.from('profiles').insert({
+          await supabase.from("profiles").insert({
             id: userId,
-            username: session.user.email?.split('@')[0] || 'user',
-            full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Utilisateur'
+            username: session.user.email?.split("@")[0] || "user",
+            full_name:
+              session.user.user_metadata?.full_name ||
+              session.user.email?.split("@")[0] ||
+              "Utilisateur",
           });
         }
       } else {
-        navigate('/login');
+        navigate("/login");
       }
     };
     getCurrentUser();
@@ -160,16 +165,16 @@ export default function NewArticlePage() {
     try {
       await createArticle(formData);
       toast({
-        title: 'Succès',
-        description: 'L\'article a été publié avec succès',
+        title: "Succès",
+        description: "L'article a été publié avec succès",
       });
-      navigate('/articles');
+      navigate("/articles");
     } catch (error) {
       const e = error as { message?: string };
       toast({
-        title: 'Erreur',
-        description: e.message || 'Impossible de publier l\'article',
-        variant: 'destructive',
+        title: "Erreur",
+        description: e.message || "Impossible de publier l'article",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -177,7 +182,7 @@ export default function NewArticlePage() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -252,7 +257,9 @@ export default function NewArticlePage() {
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => setFormData(prev => ({ ...prev, image_url: null }))}
+                      onClick={() =>
+                        setFormData((prev) => ({ ...prev, image_url: null }))
+                      }
                     >
                       Changer l'image
                     </Button>
@@ -260,8 +267,12 @@ export default function NewArticlePage() {
                 ) : (
                   <>
                     <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-semibold">Télécharger une image</h3>
-                    <p className="mt-1 text-xs text-gray-500">PNG, JPG jusqu'à 5MB</p>
+                    <h3 className="mt-2 text-sm font-semibold">
+                      Télécharger une image
+                    </h3>
+                    <p className="mt-1 text-xs text-gray-500">
+                      PNG, JPG jusqu'à 5MB
+                    </p>
                     <div className="mt-4">
                       <Input
                         id="image"
@@ -288,12 +299,12 @@ export default function NewArticlePage() {
                 disabled={isLoading}
                 className="bg-benin-green hover:bg-benin-green/90"
               >
-                {isLoading ? 'Publication...' : 'Publier l\'article'}
+                {isLoading ? "Publication..." : "Publier l'article"}
               </Button>
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/articles')}
+                onClick={() => navigate("/articles")}
               >
                 Annuler
               </Button>

@@ -61,7 +61,7 @@ export default function ContributePage() {
 
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    type: "image" | "audio"
+    type: "image" | "audio",
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -128,7 +128,7 @@ export default function ContributePage() {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       const data = await response.json();
@@ -386,7 +386,8 @@ export default function ContributePage() {
                             Télécharger une image
                           </h3>
                           <p className="mt-1 text-xs text-gray-500">
-                              Une seule image PNG ou JPG jusqu'à 10MB (haute résolution recommandée)
+                            Une seule image PNG ou JPG jusqu'à 10MB (haute
+                            résolution recommandée)
                           </p>
                           <div className="mt-4">
                             <Input
@@ -452,8 +453,8 @@ export default function ContributePage() {
                           {isSubmitting
                             ? "Envoi en cours..."
                             : isSuccess
-                            ? "Envoyé !"
-                            : "Soumettre l'image"}
+                              ? "Envoyé !"
+                              : "Soumettre l'image"}
                           {isSuccess && (
                             <CheckCircle className="ml-2 h-4 w-4" />
                           )}
@@ -535,7 +536,7 @@ export default function ContributePage() {
                             />
                           </div>
                           <div className="space-y-2">
-                          <Label htmlFor="source">Source</Label>
+                            <Label htmlFor="source">Source</Label>
                             <Input
                               id="source"
                               name="source"
@@ -555,7 +556,7 @@ export default function ContributePage() {
                             />
                           </div>
                           <div className="space-y-2">
-                          <Label htmlFor="year">Année</Label>
+                            <Label htmlFor="year">Année</Label>
                             <Input
                               id="year"
                               name="year"
@@ -633,7 +634,8 @@ export default function ContributePage() {
                               Image de couverture
                             </h3>
                             <p className="mt-1 text-xs text-gray-500">
-                              Une seule image PNG ou JPG jusqu'à 10MB (haute résolution recommandée)
+                              Une seule image PNG ou JPG jusqu'à 10MB (haute
+                              résolution recommandée)
                             </p>
                             <div className="mt-4">
                               <Input
@@ -744,8 +746,8 @@ export default function ContributePage() {
                           {isSubmitting
                             ? "Envoi en cours..."
                             : isSuccess
-                            ? "Envoyé !"
-                            : "Soumettre l'audio"}
+                              ? "Envoyé !"
+                              : "Soumettre l'audio"}
                           {isSuccess && (
                             <CheckCircle className="ml-2 h-4 w-4" />
                           )}

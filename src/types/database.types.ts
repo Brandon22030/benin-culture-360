@@ -279,6 +279,5 @@ export interface Database {
   };
 }
 
-
-export type Culture = Database['public']['Tables']['cultures']['Row'];
-export type Article = Database['public']['Tables']['articles']['Row'];
+export type Culture = Database["public"]["Tables"]["cultures"]["Row"];
+export type Article = Database["public"]["Tables"]["articles"]["Row"];

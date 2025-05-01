@@ -1,7 +1,13 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { User } from '@supabase/supabase-js';
-import { supabase } from '@/services/supabase';
-import { toast } from 'sonner';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
+import { User } from "@supabase/supabase-js";
+import { supabase } from "@/services/supabase";
+import { toast } from "sonner";
 
 interface AuthContextType {
   user: User | null;
@@ -11,12 +17,16 @@ interface AuthContextType {
   refreshUser: () => Promise<void>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined,
+);
 
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth doit être utilisé à l\'intérieur d\'un AuthProvider');
+    throw new Error(
+      "useAuth doit être utilisé à l'intérieur d'un AuthProvider",
+    );
   }
   return context;
 }
@@ -25,7 +35,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
   const refreshUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     setUser(user);
   };
 
@@ -59,22 +71,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { 
-          data: userData
-        }
+        options: {
+          data: userData,
+        },
       });
       if (error) throw error;
 
       // Attendre que l'utilisateur soit créé
       if (data.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
-            email: data.user.email,
-            username: userData.username || email.split('@')[0],
-            full_name: userData.full_name || '',
-          });
+        const { error: profileError } = await supabase.from("profiles").insert({
+          id: data.user.id,
+          email: data.user.email,
+          username: userData.username || email.split("@")[0],
+          full_name: userData.full_name || "",
+        });
 
         if (profileError) throw profileError;
       }
@@ -86,8 +96,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     refreshUser();
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
 
@@ -97,7 +109,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, signIn, signOut, signUp, refreshUser }}>
+    <AuthContext.Provider
+      value={{ user, signIn, signOut, signUp, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

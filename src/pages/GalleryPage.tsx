@@ -20,7 +20,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
-
 const GalleryPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -28,7 +27,7 @@ const GalleryPage = () => {
   const [galleryItems, setGalleryItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
-  
+
   // Add this state for featured items
   const [featuredItems, setFeaturedItems] = useState([]);
 
@@ -70,32 +69,39 @@ const GalleryPage = () => {
     try {
       // Si c'est déjà un tableau
       if (Array.isArray(imageUrlArray)) {
-        return imageUrlArray.map(url => url.replace(/[\[\]"`\\]/g, '').trim());
+        return imageUrlArray.map((url) =>
+          url.replace(/[\[\]"`\\]/g, "").trim(),
+        );
       }
-      
+
       // Si c'est une chaîne simple
-      if (typeof imageUrlArray === 'string') {
+      if (typeof imageUrlArray === "string") {
         // Essayer de parser comme JSON si la chaîne commence par [ ou "
-        if (imageUrlArray.startsWith('[') || imageUrlArray.startsWith('"')) {
+        if (imageUrlArray.startsWith("[") || imageUrlArray.startsWith('"')) {
           try {
             const parsed = JSON.parse(imageUrlArray);
             if (Array.isArray(parsed)) {
-              return parsed.map(url => url.replace(/[\[\]"`\\]/g, '').trim());
+              return parsed.map((url) => url.replace(/[\[\]"`\\]/g, "").trim());
             }
-            return [parsed.toString().replace(/[\[\]"`\\]/g, '').trim()];
+            return [
+              parsed
+                .toString()
+                .replace(/[\[\]"`\\]/g, "")
+                .trim(),
+            ];
           } catch {
             // Si le parsing échoue, traiter comme une chaîne simple
-            return [imageUrlArray.replace(/[\[\]"`\\]/g, '').trim()];
+            return [imageUrlArray.replace(/[\[\]"`\\]/g, "").trim()];
           }
         }
-        return [imageUrlArray.replace(/[\[\]"`\\]/g, '').trim()];
+        return [imageUrlArray.replace(/[\[\]"`\\]/g, "").trim()];
       }
-      
+
       // Cas par défaut
-      return ['/images/gallery/placeholder.jpg'];
+      return ["/images/gallery/placeholder.jpg"];
     } catch (error) {
-      console.error('Erreur lors du parsing des URLs:', error);
-      return ['/images/gallery/placeholder.jpg'];
+      console.error("Erreur lors du parsing des URLs:", error);
+      return ["/images/gallery/placeholder.jpg"];
     }
   };
 
@@ -210,7 +216,7 @@ const GalleryPage = () => {
                       }
                       onClick={() =>
                         setSelectedCategory((prev) =>
-                          prev === category ? null : category
+                          prev === category ? null : category,
                         )
                       }
                     >
@@ -293,11 +299,14 @@ const GalleryPage = () => {
                     {currentItem.category}
                   </span>
                   <span className="text-sm text-gray-500">
-                    {new Date(currentItem.created_at).toLocaleDateString('fr-FR', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric'
-                    })}
+                    {new Date(currentItem.created_at).toLocaleDateString(
+                      "fr-FR",
+                      {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      },
+                    )}
                   </span>
                 </DialogDescription>
               </DialogHeader>
@@ -319,7 +328,7 @@ const GalleryPage = () => {
                           src={url}
                           alt={`${currentItem.title} - Image ${index + 1}`}
                           className="w-full h-full object-cover rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
-                          onClick={() => window.open(url, '_blank')}
+                          onClick={() => window.open(url, "_blank")}
                         />
                       </div>
                     ))}
@@ -332,12 +341,18 @@ const GalleryPage = () => {
                 <TabsContent value="details">
                   <div className="space-y-6">
                     <div className="bg-white p-6 rounded-lg shadow-sm border">
-                      <h4 className="text-xl font-semibold mb-4 text-benin-green">Description</h4>
-                      <p className="text-gray-700 leading-relaxed">{currentItem.description}</p>
+                      <h4 className="text-xl font-semibold mb-4 text-benin-green">
+                        Description
+                      </h4>
+                      <p className="text-gray-700 leading-relaxed">
+                        {currentItem.description}
+                      </p>
                     </div>
 
                     <div className="bg-white p-6 rounded-lg shadow-sm border">
-                      <h4 className="text-xl font-semibold mb-4 text-benin-green">Informations détaillées</h4>
+                      <h4 className="text-xl font-semibold mb-4 text-benin-green">
+                        Informations détaillées
+                      </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="p-4 bg-gray-50 rounded-lg">
                           <div className="flex items-center gap-2 mb-2">
@@ -345,41 +360,49 @@ const GalleryPage = () => {
                           </div>
                           <p className="font-medium">{currentItem.category}</p>
                         </div>
-                        
+
                         <div className="p-4 bg-gray-50 rounded-lg">
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="text-benin-green">Date de publication</span>
+                            <span className="text-benin-green">
+                              Date de publication
+                            </span>
                           </div>
                           <p className="font-medium">
-                            {new Date(currentItem.created_at).toLocaleDateString('fr-FR', {
-                              day: 'numeric',
-                              month: 'long',
-                              year: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
+                            {new Date(
+                              currentItem.created_at,
+                            ).toLocaleDateString("fr-FR", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
                             })}
                           </p>
                         </div>
-                        
+
                         <div className="p-4 bg-gray-50 rounded-lg">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="text-benin-green">Région</span>
                           </div>
                           <p className="font-medium">{currentItem.region}</p>
                         </div>
-                        
+
                         <div className="p-4 bg-gray-50 rounded-lg">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="text-benin-green">Source</span>
                           </div>
-                          <p className="font-medium">{currentItem.source || 'Non spécifiée'}</p>
+                          <p className="font-medium">
+                            {currentItem.source || "Non spécifiée"}
+                          </p>
                         </div>
 
                         <div className="p-4 bg-gray-50 rounded-lg">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="text-benin-green">Crédit</span>
                           </div>
-                          <p className="font-medium">{currentItem.credit || 'Non spécifié'}</p>
+                          <p className="font-medium">
+                            {currentItem.credit || "Non spécifié"}
+                          </p>
                         </div>
                       </div>
                     </div>

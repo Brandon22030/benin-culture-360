@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/services/supabase";
 import type { Database } from "@/types/database.types";
 
-type Gallery = Database['public']['Tables']['galleries']['Row'];
+type Gallery = Database["public"]["Tables"]["galleries"]["Row"];
 import { Link } from "react-router-dom";
 import {
   MapPin,
@@ -35,7 +35,7 @@ const Index = () => {
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     elements.forEach((el) => observer.observe(el));
@@ -50,15 +50,15 @@ const Index = () => {
     const loadGalleries = async () => {
       try {
         const { data, error } = await supabase
-          .from('galleries')
-          .select('*')
+          .from("galleries")
+          .select("*")
           .limit(3)
-          .order('created_at', { ascending: false });
+          .order("created_at", { ascending: false });
 
         if (error) throw error;
         setGalleries(data || []);
       } catch (error) {
-        console.error('Erreur lors du chargement des galeries:', error);
+        console.error("Erreur lors du chargement des galeries:", error);
       } finally {
         setIsLoadingGalleries(false);
       }
@@ -72,15 +72,15 @@ const Index = () => {
     const loadMusics = async () => {
       try {
         const { data, error } = await supabase
-          .from('music')
-          .select('*')
+          .from("music")
+          .select("*")
           .limit(2)
-          .order('created_at', { ascending: false });
+          .order("created_at", { ascending: false });
 
         if (error) throw error;
         setMusics(data || []);
       } catch (error) {
-        console.error('Erreur lors du chargement des musiques:', error);
+        console.error("Erreur lors du chargement des musiques:", error);
       } finally {
         setIsLoadingMusics(false);
       }
@@ -125,7 +125,8 @@ const Index = () => {
               <Link to="/quiz">
                 <Button
                   variant="default"
-                  className="bg-benin-yellow hover:bg-benin-yellow/90 text-black font-semibold px-8 py-6 text-lg rounded-md"                >
+                  className="bg-benin-yellow hover:bg-benin-yellow/90 text-black font-semibold px-8 py-6 text-lg rounded-md"
+                >
                   Commencer le Quiz
                 </Button>
               </Link>
@@ -279,14 +280,16 @@ const Index = () => {
               patrimoine culturel béninois
             </p>
           </div>
-      
+
           {isLoadingGalleries ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-benin-green"></div>
             </div>
           ) : galleries.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500">Aucune galerie disponible pour le moment.</p>
+              <p className="text-gray-500">
+                Aucune galerie disponible pour le moment.
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
@@ -297,7 +300,9 @@ const Index = () => {
                 >
                   <div className="relative overflow-hidden aspect-[4/3]">
                     <img
-                      src={gallery.image_url || "/images/gallery/placeholder.jpg"}
+                      src={
+                        gallery.image_url || "/images/gallery/placeholder.jpg"
+                      }
                       alt={gallery.title}
                       className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500"
                     />
@@ -308,13 +313,17 @@ const Index = () => {
                     )}
                   </div>
                   <div className="p-6">
-                    <h3 className="text-xl font-semibold mb-2">{gallery.title}</h3>
+                    <h3 className="text-xl font-semibold mb-2">
+                      {gallery.title}
+                    </h3>
                     <p className="text-gray-600 text-sm mb-4">
                       {gallery.description?.substring(0, 100)}...
                     </p>
                     <div className="flex justify-between items-center">
                       <span className="text-xs text-gray-500">
-                        {new Date(gallery.created_at).toLocaleDateString('fr-FR')}
+                        {new Date(gallery.created_at).toLocaleDateString(
+                          "fr-FR",
+                        )}
                       </span>
                       {/* <Link
                         to={`/gallery/${gallery.id}`}
@@ -329,7 +338,7 @@ const Index = () => {
               ))}
             </div>
           )}
-      
+
           <div className="text-center">
             <Link to="/gallery">
               <Button
@@ -363,7 +372,9 @@ const Index = () => {
             </div>
           ) : musics.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500">Aucune musique disponible pour le moment.</p>
+              <p className="text-gray-500">
+                Aucune musique disponible pour le moment.
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">

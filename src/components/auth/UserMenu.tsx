@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, User, LayoutDashboard } from 'lucide-react';
+import { LogOut, User, LayoutDashboard } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,62 +10,67 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { supabase } from '@/services/supabase-client';
-import type { Database } from '@/types/database.types';
+import { supabase } from "@/services/supabase-client";
+import type { Database } from "@/types/database.types";
 
 const UserMenu = () => {
   const { user, signOut } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [profile, setProfile] = useState<{ id: string; full_name: string | null; avatar_url: string | null; role?: string | null } | null>(null);
+  const [profile, setProfile] = useState<{
+    id: string;
+    full_name: string | null;
+    avatar_url: string | null;
+    role?: string | null;
+  } | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       if (user?.id) {
         try {
           const { data: profileData, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
             .single();
 
           if (error) throw error;
 
           setProfile({
             id: user.id,
-            full_name: user.user_metadata.full_name || '',
-            avatar_url: user.user_metadata.avatar_url || '',
-            role: profileData?.role || 'user'
+            full_name: user.user_metadata.full_name || "",
+            avatar_url: user.user_metadata.avatar_url || "",
+            role: profileData?.role || "user",
           });
         } catch (error) {
-          console.error('Erreur lors de la récupération du profil:', error);
+          console.error("Erreur lors de la récupération du profil:", error);
         }
       }
     };
 
     fetchProfile();
   }, [user]);
-  
+
   const handleSignOut = async () => {
     setIsLoading(true);
     await signOut();
     setProfile(null);
     setIsLoading(false);
   };
-  
+
   // Get initials from user's full name or email
   const getInitials = () => {
     const fullName = user?.user_metadata?.full_name;
     if (fullName) {
       return fullName
-        .split(' ')
+        .split(" ")
         .map((n: string) => n[0])
-        .join('')
+        .join("")
         .toUpperCase()
         .substring(0, 2);
     }
-    return user?.email?.substring(0, 2).toUpperCase() || 'BC';
+    return user?.email?.substring(0, 2).toUpperCase() || "BC";
   };
 
   return (
@@ -74,9 +79,9 @@ const UserMenu = () => {
         <Button variant="ghost" className="relative h-11 w-11 rounded-full">
           <Avatar className="h-10 w-10 border border-benin-green/30">
             {profile?.avatar_url ? (
-              <AvatarImage 
-                src={profile.avatar_url} 
-                alt="Avatar" 
+              <AvatarImage
+                src={profile.avatar_url}
+                alt="Avatar"
                 className="object-cover"
               />
             ) : (
@@ -91,7 +96,7 @@ const UserMenu = () => {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {profile?.full_name || 'Utilisateur'}
+              {profile?.full_name || "Utilisateur"}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
               {user?.email}
@@ -99,7 +104,7 @@ const UserMenu = () => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {profile?.role === 'admin' && (
+        {profile?.role === "admin" && (
           <DropdownMenuItem asChild>
             <Link to="/admin/dashboard" className="cursor-pointer w-full">
               <LayoutDashboard className="mr-2 h-4 w-4" />
@@ -113,13 +118,13 @@ const UserMenu = () => {
             Mon Profil
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem 
-          className="cursor-pointer" 
-          onClick={handleSignOut} 
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={handleSignOut}
           disabled={isLoading}
         >
           <LogOut className="mr-2 h-4 w-4" />
-          <span>{isLoading ? 'Déconnexion...' : 'Se déconnecter'}</span>
+          <span>{isLoading ? "Déconnexion..." : "Se déconnecter"}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { getArticleById, supabase } from '@/services/supabase';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/use-auth';
-import { ArrowLeft } from 'lucide-react';
-import type { Article } from '@/types/database.types';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { getArticleById, supabase } from "@/services/supabase";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { ArrowLeft } from "lucide-react";
+import type { Article } from "@/types/database.types";
 
-type ArticleUpdate = Pick<Article, 'title' | 'content'>;
+type ArticleUpdate = Pick<Article, "title" | "content">;
 
 export default function EditArticlePage() {
   const { id } = useParams<{ id: string }>();
@@ -19,8 +19,8 @@ export default function EditArticlePage() {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState<ArticleUpdate>({
-    title: '',
-    content: '',
+    title: "",
+    content: "",
   });
 
   useEffect(() => {
@@ -33,9 +33,9 @@ export default function EditArticlePage() {
         // Vérifier si l'utilisateur est l'auteur
         if (article.author_id !== user.id) {
           toast({
-            title: 'Non autorisé',
-            description: 'Vous n\'êtes pas l\'auteur de cet article',
-            variant: 'destructive',
+            title: "Non autorisé",
+            description: "Vous n'êtes pas l'auteur de cet article",
+            variant: "destructive",
           });
           navigate(`/articles/${id}`);
           return;
@@ -44,13 +44,14 @@ export default function EditArticlePage() {
         // Vérifier si l'article est encore modifiable (moins de 24h)
         const articleDate = new Date(article.created_at);
         const now = new Date();
-        const diffInHours = (now.getTime() - articleDate.getTime()) / (1000 * 60 * 60);
-        
+        const diffInHours =
+          (now.getTime() - articleDate.getTime()) / (1000 * 60 * 60);
+
         if (diffInHours > 24) {
           toast({
-            title: 'Non modifiable',
-            description: 'L\'article ne peut plus être modifié après 24h',
-            variant: 'destructive',
+            title: "Non modifiable",
+            description: "L'article ne peut plus être modifié après 24h",
+            variant: "destructive",
           });
           navigate(`/articles/${id}`);
           return;
@@ -63,11 +64,11 @@ export default function EditArticlePage() {
       } catch (error) {
         const e = error as { message?: string };
         toast({
-          title: 'Erreur',
-          description: e.message || 'Impossible de charger l\'article',
-          variant: 'destructive',
+          title: "Erreur",
+          description: e.message || "Impossible de charger l'article",
+          variant: "destructive",
         });
-        navigate('/articles');
+        navigate("/articles");
       } finally {
         setIsLoading(false);
       }
@@ -82,23 +83,23 @@ export default function EditArticlePage() {
 
     try {
       const { error } = await supabase
-        .from('articles')
+        .from("articles")
         .update(formData)
-        .eq('id', id);
+        .eq("id", id);
 
       if (error) throw error;
 
       toast({
-        title: 'Succès',
-        description: 'L\'article a été modifié avec succès',
+        title: "Succès",
+        description: "L'article a été modifié avec succès",
       });
       navigate(`/articles/${id}`);
     } catch (error) {
       const e = error as { message?: string };
       toast({
-        title: 'Erreur',
-        description: e.message || 'Impossible de modifier l\'article',
-        variant: 'destructive',
+        title: "Erreur",
+        description: e.message || "Impossible de modifier l'article",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -106,7 +107,7 @@ export default function EditArticlePage() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -166,7 +167,9 @@ export default function EditArticlePage() {
               disabled={isLoading}
               className="bg-benin-green hover:bg-benin-green/90"
             >
-              {isLoading ? 'Enregistrement...' : 'Enregistrer les modifications'}
+              {isLoading
+                ? "Enregistrement..."
+                : "Enregistrer les modifications"}
             </Button>
             <Button
               type="button"

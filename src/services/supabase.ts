@@ -1,33 +1,38 @@
-import { supabase } from './supabase-client';
-import type { Database } from '@/types/database.types';
-import { uploadImage } from './storage';
+import { supabase } from "./supabase-client";
+import type { Database } from "@/types/database.types";
+import { uploadImage } from "./storage";
 
 // Profiles
 const getProfile = async (userId: string) => {
   const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
     .single();
-  
+
   if (error) throw error;
   return data;
 };
 
-const updateProfile = async (userId: string, updates: Database['public']['Tables']['profiles']['Update']) => {
+const updateProfile = async (
+  userId: string,
+  updates: Database["public"]["Tables"]["profiles"]["Update"],
+) => {
   const { error } = await supabase
-    .from('profiles')
+    .from("profiles")
     .update(updates)
-    .eq('id', userId);
+    .eq("id", userId);
 
   if (error) throw error;
 };
 
 // Articles
-const createArticle = async (article: Database['public']['Tables']['articles']['Insert']) => {
-  console.log('Creating article with data:', article);
+const createArticle = async (
+  article: Database["public"]["Tables"]["articles"]["Insert"],
+) => {
+  console.log("Creating article with data:", article);
   const { data, error } = await supabase
-    .from('articles')
+    .from("articles")
     .insert(article)
     .select()
     .single();
@@ -38,16 +43,18 @@ const createArticle = async (article: Database['public']['Tables']['articles']['
 
 const getArticles = async () => {
   const { data, error } = await supabase
-    .from('articles')
-    .select(`
+    .from("articles")
+    .select(
+      `
       *,
       cultures (*),
       profiles:author_id (
         username,
         full_name
       )
-    `)
-    .order('created_at', { ascending: false });
+    `,
+    )
+    .order("created_at", { ascending: false });
 
   if (error) throw error;
   return data;
@@ -56,16 +63,18 @@ const getArticles = async () => {
 // Keep only one export of this function
 export const getArticleById = async (id: string) => {
   const { data, error } = await supabase
-    .from('articles')
-    .select(`
+    .from("articles")
+    .select(
+      `
       *,
       cultures (*),
       profiles:author_id (
         username,
         full_name
       )
-    `)
-    .eq('id', id)
+    `,
+    )
+    .eq("id", id)
     .single();
 
   if (error) throw error;
@@ -74,17 +83,17 @@ export const getArticleById = async (id: string) => {
 
 // Cultures
 const getCultures = async () => {
-  const { data, error } = await supabase
-    .from('cultures')
-    .select('*');
+  const { data, error } = await supabase.from("cultures").select("*");
 
   if (error) throw error;
   return data;
 };
 
-const createCulture = async (culture: Database['public']['Tables']['cultures']['Insert']) => {
+const createCulture = async (
+  culture: Database["public"]["Tables"]["cultures"]["Insert"],
+) => {
   const { data, error } = await supabase
-    .from('cultures')
+    .from("cultures")
     .insert(culture)
     .select()
     .single();
@@ -95,9 +104,9 @@ const createCulture = async (culture: Database['public']['Tables']['cultures']['
 
 const getCultureById = async (id: string) => {
   const { data, error } = await supabase
-    .from('cultures')
-    .select('*')
-    .eq('id', id)
+    .from("cultures")
+    .select("*")
+    .eq("id", id)
     .single();
 
   if (error) throw error;
@@ -107,30 +116,37 @@ const getCultureById = async (id: string) => {
 const isArticleEditable = (createdAt: string) => {
   const articleDate = new Date(createdAt);
   const now = new Date();
-  const diffInHours = (now.getTime() - articleDate.getTime()) / (1000 * 60 * 60);
+  const diffInHours =
+    (now.getTime() - articleDate.getTime()) / (1000 * 60 * 60);
   return diffInHours <= 24;
 };
 
-const updateArticle = async (articleId: string, updates: Database['public']['Tables']['articles']['Update']) => {
+const updateArticle = async (
+  articleId: string,
+  updates: Database["public"]["Tables"]["articles"]["Update"],
+) => {
   const { data: article } = await supabase
-    .from('articles')
-    .select(`
+    .from("articles")
+    .select(
+      `
       *,
       profiles:author_id (
         username,
         full_name
       )
-    `)
-    .eq('id', articleId)
+    `,
+    )
+    .eq("id", articleId)
     .single();
 
-  if (!article) throw new Error('Article non trouvé');
-  if (!isArticleEditable(article.created_at)) throw new Error('L\'article ne peut plus être modifié après 24h');
+  if (!article) throw new Error("Article non trouvé");
+  if (!isArticleEditable(article.created_at))
+    throw new Error("L'article ne peut plus être modifié après 24h");
 
   const { error } = await supabase
-    .from('articles')
+    .from("articles")
     .update(updates)
-    .eq('id', articleId);
+    .eq("id", articleId);
 
   if (error) throw error;
 };
@@ -146,5 +162,5 @@ export {
   getCultureById,
   getArticles,
   updateArticle,
-  isArticleEditable
+  isArticleEditable,
 };

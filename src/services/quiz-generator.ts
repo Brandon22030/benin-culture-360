@@ -1,13 +1,14 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { QuizQuestion } from '@/data/culturalData';
-import { quizQuestions } from '@/data/culturalData';
+import { QuizQuestion } from "@/data/culturalData";
+import { quizQuestions } from "@/data/culturalData";
 
-const geminiKey = import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+const geminiKey =
+  import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 
 export const generateQuizQuestions = async (
-  numberOfQuestions: number = 5, 
-  difficulty: 'easy' | 'medium' | 'hard' = 'medium',
-  useAI: boolean = true
+  numberOfQuestions: number = 5,
+  difficulty: "easy" | "medium" | "hard" = "medium",
+  useAI: boolean = true,
 ): Promise<QuizQuestion[]> => {
   if (!useAI || !geminiKey) {
     return fallbackQuestions(numberOfQuestions, difficulty);
@@ -22,10 +23,12 @@ export const generateQuizQuestions = async (
 };
 
 const generateGeminiQuiz = async (
-  numberOfQuestions: number, 
-  difficulty: 'easy' | 'medium' | 'hard'
+  numberOfQuestions: number,
+  difficulty: "easy" | "medium" | "hard",
 ): Promise<QuizQuestion[]> => {
-  console.log(`🔍 Génération de ${numberOfQuestions} questions (Difficulté: ${difficulty})`);
+  console.log(
+    `🔍 Génération de ${numberOfQuestions} questions (Difficulté: ${difficulty})`,
+  );
 
   const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -93,7 +96,12 @@ const generateGeminiQuiz = async (
       console.log("   Options :", question.options);
       console.log("   Réponse correcte :", question.correctAnswer);
 
-      if (!question.id || !question.question || !question.options || question.options.length !== 4) {
+      if (
+        !question.id ||
+        !question.question ||
+        !question.options ||
+        question.options.length !== 4
+      ) {
         console.error(`❌ Question ${index + 1} invalide`);
         throw new Error(`Question ${index + 1} invalide`);
       }
@@ -101,7 +109,6 @@ const generateGeminiQuiz = async (
 
     console.log("✅ Toutes les questions sont valides");
     return generatedQuestions.slice(0, numberOfQuestions);
-
   } catch (error) {
     console.error("❌ Erreur Gemini :", error);
     throw error;
@@ -109,12 +116,14 @@ const generateGeminiQuiz = async (
 };
 
 const fallbackQuestions = (
-  numberOfQuestions: number, 
-  difficulty: 'easy' | 'medium' | 'hard'
+  numberOfQuestions: number,
+  difficulty: "easy" | "medium" | "hard",
 ): QuizQuestion[] => {
-  console.warn("Utilisation des questions prédéfinies comme solution de secours");
+  console.warn(
+    "Utilisation des questions prédéfinies comme solution de secours",
+  );
   return quizQuestions
-    .filter(q => q.difficulty === difficulty)
+    .filter((q) => q.difficulty === difficulty)
     .sort(() => 0.5 - Math.random())
     .slice(0, numberOfQuestions);
 };
@@ -123,5 +132,5 @@ export const generateQuizQuestionsFromAI = generateQuizQuestions;
 
 export default {
   generateQuizQuestions,
-  generateQuizQuestionsFromAI
+  generateQuizQuestionsFromAI,
 };

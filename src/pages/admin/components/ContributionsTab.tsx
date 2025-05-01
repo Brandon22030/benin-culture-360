@@ -21,12 +21,12 @@ import { supabase } from "@/services/supabase-client";
 
 const getStatusStyle = (status: string) => {
   switch (status) {
-    case 'approved':
-      return 'bg-green-100 text-green-800';
-    case 'rejected':
-      return 'bg-red-100 text-red-800';
+    case "approved":
+      return "bg-green-100 text-green-800";
+    case "rejected":
+      return "bg-red-100 text-red-800";
     default:
-      return 'bg-yellow-100 text-black';
+      return "bg-yellow-100 text-black";
   }
 };
 
@@ -39,23 +39,25 @@ const ContributionsTab = () => {
   const getImageUrls = (imageUrlArray: any) => {
     try {
       if (Array.isArray(imageUrlArray)) {
-        return imageUrlArray.map(url => url.replace(/[\[\]"`\\]/g, '').trim());
+        return imageUrlArray.map((url) =>
+          url.replace(/[\[\]"`\\]/g, "").trim(),
+        );
       }
-      
+
       const parsedArray = JSON.parse(imageUrlArray);
       if (Array.isArray(parsedArray)) {
-        return parsedArray.map(url => url.replace(/[\[\]"`\\]/g, '').trim());
+        return parsedArray.map((url) => url.replace(/[\[\]"`\\]/g, "").trim());
       }
-      if (typeof parsedArray === 'string') {
-        return [parsedArray.replace(/[\[\]"`\\]/g, '').trim()];
+      if (typeof parsedArray === "string") {
+        return [parsedArray.replace(/[\[\]"`\\]/g, "").trim()];
       }
-      
-      return ['/images/gallery/placeholder.jpg'];
+
+      return ["/images/gallery/placeholder.jpg"];
     } catch (error) {
-      if (typeof imageUrlArray === 'string') {
-        return [imageUrlArray.replace(/[\[\]"`\\]/g, '').trim()];
+      if (typeof imageUrlArray === "string") {
+        return [imageUrlArray.replace(/[\[\]"`\\]/g, "").trim()];
       }
-      return ['/images/gallery/placeholder.jpg'];
+      return ["/images/gallery/placeholder.jpg"];
     }
   };
 
@@ -80,17 +82,21 @@ const ContributionsTab = () => {
   };
 
   // Calculer le nombre de contributions en attente
-  const pendingGalleryCount = galleryPending.filter(item => item.status === 'pending').length;
-  const pendingMusicCount = musicPending.filter(item => item.status === 'pending').length;
+  const pendingGalleryCount = galleryPending.filter(
+    (item) => item.status === "pending",
+  ).length;
+  const pendingMusicCount = musicPending.filter(
+    (item) => item.status === "pending",
+  ).length;
 
   const handleStatusChange = async (
     id: string,
     status: string,
-    type: "gallery" | "music"
+    type: "gallery" | "music",
   ) => {
     try {
       const table = type === "gallery" ? "gallery_pending" : "music_pending";
-      
+
       // Si le statut est "approved", on récupère d'abord les données de la contribution
       if (status === "approved") {
         const { data: contribution, error: fetchError } = await supabase
@@ -107,41 +113,43 @@ const ContributionsTab = () => {
           try {
             const cleanUrl = (url: string) => {
               return url
-                .replace(/[`\s]/g, '')
-                .replace(/[\[\]"\\]/g, '')
+                .replace(/[`\s]/g, "")
+                .replace(/[\[\]"\\]/g, "")
                 .trim();
             };
 
             if (Array.isArray(contribution.image_url)) {
               imageUrl = cleanUrl(contribution.image_url[0].toString());
-            } 
-            else if (typeof contribution.image_url === 'string') {
+            } else if (typeof contribution.image_url === "string") {
               try {
                 let parsed = contribution.image_url;
-                while (typeof parsed === 'string' && (parsed.startsWith('[') || parsed.startsWith('"'))) {
+                while (
+                  typeof parsed === "string" &&
+                  (parsed.startsWith("[") || parsed.startsWith('"'))
+                ) {
                   parsed = JSON.parse(parsed);
                 }
-                
-                imageUrl = Array.isArray(parsed) 
+
+                imageUrl = Array.isArray(parsed)
                   ? cleanUrl(parsed[0].toString())
                   : cleanUrl(parsed.toString());
               } catch {
                 imageUrl = cleanUrl(contribution.image_url);
               }
-            } 
-            else {
+            } else {
               imageUrl = cleanUrl(contribution.image_url.toString());
             }
 
             // Vérifier que l'URL est valide
-            if (!imageUrl || !imageUrl.startsWith('http')) {
-              throw new Error('URL d\'image invalide');
+            if (!imageUrl || !imageUrl.startsWith("http")) {
+              throw new Error("URL d'image invalide");
             }
 
-            console.log('URL d\'image avant envoi:', imageUrl);
+            console.log("URL d'image avant envoi:", imageUrl);
 
-            const { error: insertError } = await supabase
-              .rpc('create_approved_gallery', {
+            const { error: insertError } = await supabase.rpc(
+              "create_approved_gallery",
+              {
                 p_title: contribution.title,
                 p_description: contribution.description,
                 p_image_url: imageUrl, // Une seule URL
@@ -150,20 +158,23 @@ const ContributionsTab = () => {
                 p_credit: contribution.credit,
                 p_source: contribution.source,
                 p_contributor_id: contribution.contributor_id,
-                p_created_at: contribution.created_at || new Date().toISOString()
-              });
+                p_created_at:
+                  contribution.created_at || new Date().toISOString(),
+              },
+            );
 
             if (insertError) {
-              console.error('Erreur lors de l\'insertion:', insertError);
+              console.error("Erreur lors de l'insertion:", insertError);
               throw insertError;
             }
           } catch (error) {
-            console.error('Erreur lors du traitement de l\'URL:', error);
-            throw new Error('Impossible de traiter l\'URL d\'image');
+            console.error("Erreur lors du traitement de l'URL:", error);
+            throw new Error("Impossible de traiter l'URL d'image");
           }
         } else {
-          const { error: insertError } = await supabase
-            .rpc('create_approved_music', {
+          const { error: insertError } = await supabase.rpc(
+            "create_approved_music",
+            {
               p_title: contribution.title,
               p_artist: contribution.artist,
               p_description: contribution.description,
@@ -175,8 +186,9 @@ const ContributionsTab = () => {
               p_contributor_id: contribution.contributor_id,
               p_created_at: contribution.created_at || new Date().toISOString(),
               p_album: contribution.album,
-              p_year: contribution.year
-            });
+              p_year: contribution.year,
+            },
+          );
 
           if (insertError) throw insertError;
         }
@@ -199,11 +211,8 @@ const ContributionsTab = () => {
   const handleDelete = async (id: string, type: "gallery" | "music") => {
     try {
       const table = type === "gallery" ? "gallery_pending" : "music_pending";
-      
-      const { error } = await supabase
-        .from(table)
-        .delete()
-        .eq("id", id);
+
+      const { error } = await supabase.from(table).delete().eq("id", id);
 
       if (error) throw error;
 
@@ -242,7 +251,7 @@ const ContributionsTab = () => {
                       alt={item.title}
                       className="w-full h-48 object-cover rounded-md mb-4"
                       onError={(e) => {
-                        e.currentTarget.src = '/images/gallery/placeholder.jpg';
+                        e.currentTarget.src = "/images/gallery/placeholder.jpg";
                       }}
                     />
                     <h3 className="font-semibold">{item.title}</h3>
@@ -252,14 +261,16 @@ const ContributionsTab = () => {
 
                     <div className="flex justify-between items-center mt-4">
                       <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          onClick={() => navigate(`/admin/contributions/gallery/${item.id}`)}
+                        <Button
+                          variant="outline"
+                          onClick={() =>
+                            navigate(`/admin/contributions/gallery/${item.id}`)
+                          }
                         >
                           Détails
                         </Button>
-                        <Button 
-                          variant="destructive" 
+                        <Button
+                          variant="destructive"
                           onClick={() => handleDelete(item.id, "gallery")}
                         >
                           Supprimer
@@ -272,7 +283,9 @@ const ContributionsTab = () => {
                           handleStatusChange(item.id, value, "gallery")
                         }
                       >
-                        <SelectTrigger className={`w-[180px] ${getStatusStyle(item.status)}`}>
+                        <SelectTrigger
+                          className={`w-[180px] ${getStatusStyle(item.status)}`}
+                        >
                           <SelectValue placeholder="Statut" />
                         </SelectTrigger>
                         <SelectContent>
@@ -299,8 +312,8 @@ const ContributionsTab = () => {
                 {musicPending.map((item) => (
                   <div key={item.id} className="border rounded-lg p-4">
                     <div className="bg-muted p-4 rounded-lg mb-4">
-                      <audio 
-                        controls 
+                      <audio
+                        controls
                         className="w-full"
                         controlsList="nodownload"
                       >
@@ -315,14 +328,16 @@ const ContributionsTab = () => {
 
                     <div className="flex justify-between items-center mt-4">
                       <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          onClick={() => navigate(`/admin/contributions/music/${item.id}`)}
+                        <Button
+                          variant="outline"
+                          onClick={() =>
+                            navigate(`/admin/contributions/music/${item.id}`)
+                          }
                         >
                           Détails
                         </Button>
-                        <Button 
-                          variant="destructive" 
+                        <Button
+                          variant="destructive"
                           onClick={() => handleDelete(item.id, "music")}
                         >
                           Supprimer
@@ -335,7 +350,9 @@ const ContributionsTab = () => {
                           handleStatusChange(item.id, value, "music")
                         }
                       >
-                        <SelectTrigger className={`w-[180px] ${getStatusStyle(item.status)}`}>
+                        <SelectTrigger
+                          className={`w-[180px] ${getStatusStyle(item.status)}`}
+                        >
                           <SelectValue placeholder="Statut" />
                         </SelectTrigger>
                         <SelectContent>

@@ -1,26 +1,33 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { supabase, updateProfile, getProfile, uploadImage } from '@/services/supabase';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import {
+  supabase,
+  updateProfile,
+  getProfile,
+  uploadImage,
+} from "@/services/supabase";
 
 export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    username: '',
-    full_name: '',
-    avatar_url: ''
+    username: "",
+    full_name: "",
+    avatar_url: "",
   });
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     const loadProfile = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session?.user) {
-        navigate('/login');
+        navigate("/login");
         return;
       }
 
@@ -28,17 +35,17 @@ export default function ProfilePage() {
         const profile = await getProfile(session.user.id);
         if (profile) {
           setFormData({
-            username: profile.username || '',
-            full_name: profile.full_name || '',
-            avatar_url: profile.avatar_url || ''
+            username: profile.username || "",
+            full_name: profile.full_name || "",
+            avatar_url: profile.avatar_url || "",
           });
         }
       } catch (error) {
         const e = error as { message?: string };
         toast({
-          title: 'Erreur',
-          description: e.message || 'Impossible de charger le profil',
-          variant: 'destructive',
+          title: "Erreur",
+          description: e.message || "Impossible de charger le profil",
+          variant: "destructive",
         });
       }
     };
@@ -51,21 +58,23 @@ export default function ProfilePage() {
     setIsLoading(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) throw new Error('Non authentifié');
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.user) throw new Error("Non authentifié");
 
       await updateProfile(session.user.id, formData);
-      
+
       toast({
-        title: 'Succès',
-        description: 'Votre profil a été mis à jour',
+        title: "Succès",
+        description: "Votre profil a été mis à jour",
       });
     } catch (error) {
       const e = error as { message?: string };
       toast({
-        title: 'Erreur',
-        description: e.message || 'Impossible de mettre à jour le profil',
-        variant: 'destructive',
+        title: "Erreur",
+        description: e.message || "Impossible de mettre à jour le profil",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -83,70 +92,73 @@ export default function ProfilePage() {
 
     try {
       setIsLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       const userId = session?.user?.id;
 
-      console.log('Session User:', session?.user);
+      console.log("Session User:", session?.user);
 
       if (!userId) {
-        console.error('No user ID found');
+        console.error("No user ID found");
         toast({
-          title: 'Erreur',
-          description: 'Utilisateur non connecté',
-          variant: 'destructive'
+          title: "Erreur",
+          description: "Utilisateur non connecté",
+          variant: "destructive",
         });
         return;
       }
 
       // Validation du fichier
-      if (file.size > 5 * 1024 * 1024) { // 5MB max
-        throw new Error('La taille du fichier ne doit pas dépasser 5 Mo');
+      if (file.size > 5 * 1024 * 1024) {
+        // 5MB max
+        throw new Error("La taille du fichier ne doit pas dépasser 5 Mo");
       }
 
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
       if (!allowedTypes.includes(file.type)) {
-        throw new Error('Seuls les formats JPEG, PNG et WebP sont autorisés');
+        throw new Error("Seuls les formats JPEG, PNG et WebP sont autorisés");
       }
 
-      console.log('Uploading avatar for user:', userId);
-      const avatarUrl = await uploadImage(file, 'avatars', userId, true);
-      console.log('Avatar URL:', avatarUrl);
+      console.log("Uploading avatar for user:", userId);
+      const avatarUrl = await uploadImage(file, "avatars", userId, true);
+      console.log("Avatar URL:", avatarUrl);
 
       // Mettre à jour le profil Supabase
       const { error: profileError } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update({ avatar_url: avatarUrl })
-        .eq('id', userId);
+        .eq("id", userId);
 
       if (profileError) {
-        console.error('Profile update error:', profileError);
+        console.error("Profile update error:", profileError);
         throw profileError;
       }
 
       // Mettre à jour les données utilisateur
       const { error: userError } = await supabase.auth.updateUser({
-        data: { avatar_url: avatarUrl }
+        data: { avatar_url: avatarUrl },
       });
 
       if (userError) {
-        console.error('User update error:', userError);
+        console.error("User update error:", userError);
         throw userError;
       }
 
       // Mettre à jour l'état local
-      setFormData(prev => ({ ...prev, avatar_url: avatarUrl }));
+      setFormData((prev) => ({ ...prev, avatar_url: avatarUrl }));
 
       toast({
-        title: 'Succès',
-        description: 'Votre photo de profil a été mise à jour',
+        title: "Succès",
+        description: "Votre photo de profil a été mise à jour",
       });
     } catch (error) {
       const e = error as { message?: string };
-      console.error('Complete Avatar Upload Error:', e);
+      console.error("Complete Avatar Upload Error:", e);
       toast({
-        title: 'Erreur',
-        description: e.message || 'Impossible de mettre à jour la photo',
-        variant: 'destructive',
+        title: "Erreur",
+        description: e.message || "Impossible de mettre à jour la photo",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -211,7 +223,9 @@ export default function ProfilePage() {
               disabled={isLoading}
               className="bg-benin-green hover:bg-benin-green/90"
             >
-              {isLoading ? 'Enregistrement...' : 'Enregistrer les modifications'}
+              {isLoading
+                ? "Enregistrement..."
+                : "Enregistrer les modifications"}
             </Button>
             <Button
               type="button"
