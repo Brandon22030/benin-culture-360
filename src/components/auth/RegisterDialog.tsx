@@ -55,17 +55,50 @@ const RegisterDialog = ({ open, onOpenChange }: RegisterDialogProps) => {
 
       // Create a profile for the new user
       if (signUpData.user) {
-        const { error: profileError } = await supabase
+        console.log('User data:', signUpData.user);
+        console.log('Email to insert:', email);
+        
+        // Vérifier d'abord si le profil existe
+        const { data: existingProfile } = await supabase
           .from('profiles')
-          .insert({
-            id: signUpData.user.id,
-            username: email.split('@')[0],
-            full_name: name,
-          });
+          .select()
+          .eq('id', signUpData.user.id)
+          .single();
 
-        if (profileError) {
-          console.error('Error creating profile:', profileError);
-          // We don't throw here as the user is already created
+        if (existingProfile) {
+          // Si le profil existe, on le met à jour
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .update({
+              username: email.split('@')[0],
+              full_name: name,
+              email: email
+            })
+            .eq('id', signUpData.user.id)
+            .select();
+
+          if (profileError) {
+            console.error('Error updating profile:', profileError);
+          } else {
+            console.log('Profile updated:', profileData);
+          }
+        } else {
+          // Si le profil n'existe pas, on le crée
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              id: signUpData.user.id,
+              username: email.split('@')[0],
+              full_name: name,
+              email: email
+            })
+            .select();
+
+          if (profileError) {
+            console.error('Error creating profile:', profileError);
+          } else {
+            console.log('Profile created:', profileData);
+          }
         }
       }
 

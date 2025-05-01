@@ -22,6 +22,10 @@ import { AuthProvider } from "@/hooks/use-auth.tsx"; // Notez l'extension .tsx
 import DashboardPage from "@/pages/admin/DashboardPage";
 import GalleryDetails from "@/pages/admin/contributions/gallery/GalleryDetails";
 import MusicDetails from "@/pages/admin/contributions/music/MusicDetails";
+import AboutPage from "./pages/AboutPage";
+import PrivacyPage from "./pages/legal/PrivacyPage";
+import TermsPage from "./pages/legal/TermsPage";
+import ContactPage from "./pages/ContactPage";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +52,10 @@ const App = () => (
             <Route path="/articles/:id/edit" element={<EditArticlePage />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/admin/dashboard" element={<DashboardPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
             <Route
               path="/admin/contributions/gallery/:id"
               element={<GalleryDetails />}

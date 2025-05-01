@@ -232,13 +232,13 @@ const AudioPage = () => {
                       >
                         <Info size={16} />
                       </Button>
-                      <Button 
+                      {/* <Button 
                         size="sm" 
                         variant="outline" 
                         className="h-8 w-8 p-0"
                       >
                         <Download size={16} />
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 </div>
@@ -372,14 +372,14 @@ const AudioPage = () => {
                               {detailsTrackData?.region ? `Région: ${detailsTrackData.region}` : "Région non spécifiée"}
                             </span>
                           </div>
-                          <Button 
+                          {/* <Button 
                             size="sm" 
                             className="bg-benin-red hover:bg-benin-red/90 flex items-center gap-2 mt-2"
                             onClick={() => window.open(detailsTrackData.audio_url, '_blank')}
                           >
                             <Download size={16} />
                             Télécharger
-                          </Button>
+                          </Button> */}
                         </div>
                       </div>
                       

@@ -79,7 +79,7 @@ const Navbar = () => {
               <div className="flex space-x-2">
                 <Button 
                   variant="outline" 
-                  className="text-benin-green border-benin-green hover:bg-benin-green/10"
+                  className="text-benin-green border-benin-green hover:bg-benin-green/10 hover:text-benin-green"
                   onClick={() => setShowLoginDialog(true)}
                 >
                   <LogIn size={18} className="mr-2" />
