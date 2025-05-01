@@ -5,3 +5,14 @@ pages_build_output_dir = "dist"
 [vars]
 SUPABASE_URL = "https://itrimxcpgeksvbegfwmf.supabase.co"
 SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0cmlteGNwZ2Vrc3ZiZWdmd21mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzOTQwMTUsImV4cCI6MjA1OTk3MDAxNX0.6fWQkYMq3vtD-oJnsooDiHR5fU8WsnLSB83G0Cpi2NQ"
+
+[site]
+bucket = "dist"
+entry-point = "functions"
+
+[[headers]]
+for = "/*"
+[headers.values]
+"Access-Control-Allow-Origin" = "https://benin-culture-360.pages.dev"
+"Access-Control-Allow-Methods" = "GET,POST,PUT,DELETE,OPTIONS"
+"Access-Control-Allow-Headers" = "Content-Type, Authorization, apikey"
