@@ -1,16 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 
-// Ajoutez une déclaration globale pour window.ENV
-declare global {
-  interface Window {
-    ENV?: {
-      VITE_SUPABASE_URL?: string;
-      VITE_SUPABASE_ANON_KEY?: string;
-    };
-  }
-}
-
 const supabaseUrl = 
   import.meta.env?.VITE_SUPABASE_URL || 
   process.env?.SUPABASE_URL || 
@@ -21,19 +11,33 @@ const supabaseAnonKey =
   import.meta.env?.VITE_SUPABASE_ANON_KEY || 
   process.env?.SUPABASE_ANON_KEY || 
   window.ENV?.VITE_SUPABASE_ANON_KEY ||
-  'votre_clé_anonyme';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0cmlteGNwZ2Vrc3ZiZWdmd21mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzOTQwMTUsImV4cCI6MjA1OTk3MDAxNX0.6fWQkYMq3vtD-oJnsooDiHR5fU8WsnLSB83G0Cpi2NQ';
 
-console.log('Resolved Supabase URL:', supabaseUrl);
-console.log('Resolved Supabase Anon Key:', supabaseAnonKey ? '[REDACTED]' : 'MISSING');
+console.error('Supabase Configuration Debug:', {
+  url: supabaseUrl,
+  anonKeyLength: supabaseAnonKey?.length || 0,
+  origin: window.location.origin
+});
 
-if (!supabaseUrl) {
-  console.error('Supabase URL is missing from all sources');
-  throw new Error('Supabase URL is required. Please check your environment variables.');
-}
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true
+  },
+  global: {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    }
+  }
+});
 
-if (!supabaseAnonKey) {
-  console.error('Supabase Anon Key is missing from all sources');
-  throw new Error('Supabase Anon Key is required. Please check your environment variables.');
-}
-
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+// Gestionnaire d'erreurs détaillé
+supabase.auth.onAuthStateChange((event, session) => {
+  console.error('Auth State Change:', {
+    event,
+    session,
+    url: supabaseUrl,
+    origin: window.location.origin
+  });
+});
