@@ -10,6 +10,26 @@ const GalleryDetails = () => {
   const [item, setItem] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const getImageUrls = (imageUrl: any) => {
+    try {
+      // Si c'est déjà une chaîne simple
+      if (typeof imageUrl === 'string') {
+        return imageUrl.replace(/[\[\]"`\\]/g, '').trim();
+      }
+    
+      // Si c'est une chaîne JSON
+      const parsed = JSON.parse(imageUrl);
+      if (Array.isArray(parsed)) {
+        return parsed[0].replace(/[\[\]"`\\]/g, '').trim();
+      }
+      
+      return parsed.replace(/[\[\]"`\\]/g, '').trim();
+    } catch (error) {
+      console.error('Erreur lors du parsing de l\'URL:', error);
+      return '/images/gallery/placeholder.jpg';
+    }
+  };
+
   useEffect(() => {
     if (id) {
       fetchContributionDetails();
@@ -59,12 +79,21 @@ const GalleryDetails = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-8">
-            <div className="w-full max-h-[500px] relative rounded-lg overflow-hidden">
-              <img 
-                src={item.image_url} 
-                alt={item.title} 
-                className="w-full h-full object-contain"
-              />
+            <div className="w-full relative rounded-lg overflow-hidden mb-6">
+              <div className="relative aspect-[4/3] group cursor-pointer">
+                <img 
+                  src={getImageUrls(item.image_url)} 
+                  alt={item.title} 
+                  className="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-105"
+                  onError={(e) => {
+                    e.currentTarget.src = '/images/gallery/placeholder.jpg';
+                    console.error('Erreur de chargement de l\'image:', item.image_url);
+                  }}
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-lg">
+                  <span className="text-white text-sm">Cliquer pour agrandir</span>
+                </div>
+              </div>
             </div>
 
             <div className="grid gap-6">

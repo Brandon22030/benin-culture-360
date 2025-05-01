@@ -1,7 +1,7 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/services/supabase-client';
 import Layout from '@/components/Layout';
-import { audioTracks } from '@/data/culturalData';
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,15 +17,33 @@ const AudioPage = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [trackDetails, setTrackDetails] = useState<string | null>(null);
-  
-  // Get all unique categories
+  const [audioTracks, setAudioTracks] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAudioTracks();
+  }, []);
+
+  const fetchAudioTracks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('music')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setAudioTracks(data);
+    } catch (error) {
+      console.error('Erreur lors du chargement des pistes audio:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const categories = Array.from(new Set(audioTracks.map(track => track.category)));
-  
-  // Filter tracks by category
   const filteredTracks = selectedCategory 
     ? audioTracks.filter(track => track.category === selectedCategory) 
     : audioTracks;
-  
   const currentTrackData = audioTracks.find(track => track.id === currentTrack);
   const detailsTrackData = audioTracks.find(track => track.id === trackDetails);
   
