@@ -163,6 +163,11 @@ export default function ContributePage() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    // Supprimer ces console.log
+    setIsSubmitting(true);
 
     if (!user) {
       toast({
@@ -172,9 +177,6 @@ export default function ContributePage() {
       });
       return;
     }
-
-    const form = event.currentTarget; // Déclarer la variable form ici
-    const formData = new FormData(form);
 
     console.log("FormData:", Object.fromEntries(formData.entries()));
     console.log("ActiveTab:", activeTab);

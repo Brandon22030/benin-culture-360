@@ -60,6 +60,9 @@ const Profile = () => {
       const file = event.target.files?.[0];
       if (!file) return;
 
+      // Supprimer ces console.log et console.error
+      setIsLoading(true);
+
       // Vérification de la taille du fichier (max 2MB)
       if (file.size > 2 * 1024 * 1024) {
         toast.error("L'image ne doit pas dépasser 2MB");

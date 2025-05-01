@@ -117,7 +117,7 @@ const QuizPage = () => {
       setSelectedAnswer(null);
       setIsAnswerSubmitted(false);
     } catch (error) {
-      console.error("Erreur lors de la génération de questions :", error);
+      // console.error("Erreur lors de la génération de questions :", error);
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -287,7 +287,10 @@ const QuizPage = () => {
                     {isLoading ? (
                       <>
                         <span className="mr-2">Génération en cours</span>
-                        <Progress value={33 * (currentQuestionIndex + 1)} className="w-full" />
+                        <Progress
+                          value={33 * (currentQuestionIndex + 1)}
+                          className="w-full"
+                        />
                       </>
                     ) : (
                       "Commencer le Quiz"

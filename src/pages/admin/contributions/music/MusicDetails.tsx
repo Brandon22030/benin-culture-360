@@ -18,43 +18,33 @@ const MusicDetails = () => {
 
   const fetchContributionDetails = async () => {
     try {
-      console.log("Fetching details for ID:", id);
-
       const { data, error } = await supabase
         .from("music_pending")
-        .select(
-          `
-          *,
+        .select(`*,
           profiles:contributor_id (
             username,
             full_name,
             email
-          )
-        `,
-        )
+          )`)
         .eq("id", id)
         .single();
 
       if (error) {
-        console.error("Supabase error:", error);
         throw error;
       }
 
       if (!data) {
-        console.error("No data found for ID:", id);
         throw new Error("Contribution non trouvée");
       }
 
-      // Ajout d'un log pour vérifier les données
-      console.log("Données complètes:", data);
-
       setItem(data);
     } catch (error) {
-      console.error("Erreur détaillée lors du chargement des détails:", error);
+      // Gérer l'erreur de manière appropriée sans console.log
+      setIsLoading(false);
     } finally {
       setIsLoading(false);
     }
-  };
+};
 
   if (isLoading) return <div>Chargement...</div>;
   if (!item)

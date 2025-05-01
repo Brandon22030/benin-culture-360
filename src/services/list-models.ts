@@ -6,17 +6,19 @@ export async function listModels() {
       `https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`,
     );
     const data = await response.json();
-
-    console.log("Modèles disponibles :");
-    data.models.forEach((model: any) => {
-      console.log(`Nom : ${model.name}`);
-      console.log(`  Description : ${model.description}`);
-      console.log(
-        `  GenerationMethods : ${model.supportedGenerationMethods?.join(", ")}`,
-      );
-      console.log("---");
-    });
+    return data.models;
   } catch (error) {
-    console.error("Erreur lors de l’appel à ListModels :", error);
+    throw new Error("Erreur lors de l'appel à ListModels");
   }
+}
+
+console.log("Modèles disponibles :");
+data.models.forEach((model: any) => {
+  console.log(`Nom : ${model.name}`);
+  console.log(`  Description : ${model.description}`);
+  console.log(
+    `  GenerationMethods : ${model.supportedGenerationMethods?.join(", ")}`,
+  );
+  console.log("---");
+});
 }

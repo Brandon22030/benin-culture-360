@@ -45,27 +45,21 @@ const RegisterDialog = ({ open, onOpenChange }: RegisterDialogProps) => {
     setIsLoading(true);
 
     try {
-      const { data: signUpData, error: signUpError } =
-        await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: name,
-            },
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
           },
-        });
+        },
+      });
 
       if (signUpError) {
         throw signUpError;
       }
 
-      // Create a profile for the new user
       if (signUpData.user) {
-        console.log("User data:", signUpData.user);
-        console.log("Email to insert:", email);
-
-        // Vérifier d'abord si le profil existe
         const { data: existingProfile } = await supabase
           .from("profiles")
           .select()
@@ -73,8 +67,7 @@ const RegisterDialog = ({ open, onOpenChange }: RegisterDialogProps) => {
           .single();
 
         if (existingProfile) {
-          // Si le profil existe, on le met à jour
-          const { data: profileData, error: profileError } = await supabase
+          const { error: profileError } = await supabase
             .from("profiles")
             .update({
               username: email.split("@")[0],
@@ -85,13 +78,10 @@ const RegisterDialog = ({ open, onOpenChange }: RegisterDialogProps) => {
             .select();
 
           if (profileError) {
-            console.error("Error updating profile:", profileError);
-          } else {
-            console.log("Profile updated:", profileData);
+            throw profileError;
           }
         } else {
-          // Si le profil n'existe pas, on le crée
-          const { data: profileData, error: profileError } = await supabase
+          const { error: profileError } = await supabase
             .from("profiles")
             .insert({
               id: signUpData.user.id,
@@ -102,9 +92,7 @@ const RegisterDialog = ({ open, onOpenChange }: RegisterDialogProps) => {
             .select();
 
           if (profileError) {
-            console.error("Error creating profile:", profileError);
-          } else {
-            console.log("Profile created:", profileData);
+            throw profileError;
           }
         }
       }
