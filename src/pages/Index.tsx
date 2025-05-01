@@ -1,4 +1,8 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/services/supabase";
+import type { Database } from "@/types/database.types";
+
+type Gallery = Database['public']['Tables']['galleries']['Row'];
 import { Link } from "react-router-dom";
 import {
   MapPin,
@@ -14,6 +18,11 @@ import { Button } from "@/components/ui/button";
 import { regions, galleryItems, audioTracks } from "@/data/culturalData";
 
 const Index = () => {
+  const [galleries, setGalleries] = useState<Gallery[]>([]);
+  const [isLoadingGalleries, setIsLoadingGalleries] = useState(true);
+  const [musics, setMusics] = useState<any[]>([]);
+  const [isLoadingMusics, setIsLoadingMusics] = useState(true);
+
   // Animation effect on load
   useEffect(() => {
     const elements = document.querySelectorAll(".animate-on-scroll");
@@ -36,8 +45,52 @@ const Index = () => {
     };
   }, []);
 
+  // Load galleries
+  useEffect(() => {
+    const loadGalleries = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('galleries')
+          .select('*')
+          .limit(3)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setGalleries(data || []);
+      } catch (error) {
+        console.error('Erreur lors du chargement des galeries:', error);
+      } finally {
+        setIsLoadingGalleries(false);
+      }
+    };
+
+    loadGalleries();
+  }, []);
+
+  // Load musics
+  useEffect(() => {
+    const loadMusics = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('music')
+          .select('*')
+          .limit(2)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setMusics(data || []);
+      } catch (error) {
+        console.error('Erreur lors du chargement des musiques:', error);
+      } finally {
+        setIsLoadingMusics(false);
+      }
+    };
+
+    loadMusics();
+  }, []);
+
   // Featured items
-  const featuredRegion = regions[0]; // Atlantique
+  const featuredRegion = regions[0];
   const featuredGalleryItems = galleryItems.slice(0, 3);
   const featuredAudioTracks = audioTracks.slice(0, 2);
 
@@ -170,9 +223,7 @@ const Index = () => {
               <div className="aspect-video overflow-hidden rounded-xl shadow-lg relative">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10"></div>
                 <img
-                  src={
-                    featuredRegion.image || "/images/regions/placeholder.jpg"
-                  }
+                  src="/images/regions/placeholder.jpg"
                   alt={featuredRegion.name}
                   className="w-full h-full object-cover transition-transform hover:scale-105 duration-500"
                 />
@@ -228,48 +279,62 @@ const Index = () => {
               patrimoine culturel béninois
             </p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            {featuredGalleryItems.map((item) => (
-              <div
-                key={item.id}
-                className="benin-card group overflow-hidden animate-on-scroll"
-              >
-                <div className="relative overflow-hidden aspect-[4/3]">
-                  <img
-                    src={item.imageUrl || "/images/gallery/placeholder.jpg"}
-                    alt={item.title}
-                    className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500"
-                  />
-                  <div className="absolute top-3 right-3 bg-white/80 text-benin-green text-xs font-semibold px-2 py-1 rounded">
-                    {item.category}
+      
+          {isLoadingGalleries ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-benin-green"></div>
+            </div>
+          ) : galleries.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">Aucune galerie disponible pour le moment.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+              {galleries.map((gallery) => (
+                <div
+                  key={gallery.id}
+                  className="benin-card group overflow-hidden animate-on-scroll"
+                >
+                  <div className="relative overflow-hidden aspect-[4/3]">
+                    <img
+                      src={gallery.image_url || "/images/gallery/placeholder.jpg"}
+                      alt={gallery.title}
+                      className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500"
+                    />
+                    {gallery.category && (
+                      <div className="absolute top-3 right-3 bg-white/80 text-benin-green text-xs font-semibold px-2 py-1 rounded">
+                        {gallery.category}
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold mb-2">{gallery.title}</h3>
+                    <p className="text-gray-600 text-sm mb-4">
+                      {gallery.description?.substring(0, 100)}...
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-500">
+                        {new Date(gallery.created_at).toLocaleDateString('fr-FR')}
+                      </span>
+                      {/* <Link
+                        to={`/gallery/${gallery.id}`}
+                        className="text-benin-green hover:text-benin-green/80 text-sm font-medium flex items-center gap-1"
+                      >
+                        <span>Voir plus</span>
+                        <ChevronRight size={16} />
+                      </Link> */}
+                    </div>
                   </div>
                 </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                  <p className="text-gray-600 text-sm mb-4">
-                    {item.description.substring(0, 100)}...
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-500">{item.date}</span>
-                    <Link
-                      to={`/gallery/${item.id}`}
-                      className="text-benin-green hover:text-benin-green/80 text-sm font-medium flex items-center gap-1"
-                    >
-                      <span>Voir plus</span>
-                      <ChevronRight size={16} />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
+              ))}
+            </div>
+          )}
+      
           <div className="text-center">
             <Link to="/gallery">
               <Button
                 variant="outline"
-                className="border-benin-green text-benin-green hover:bg-benin-green/5"
+                className="border-benin-green text-benin-green hover:text-benin-green hover:bg-benin-green/5"
               >
                 Voir toute la galerie
                 <ChevronRight size={16} className="ml-1" />
@@ -292,56 +357,60 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-            {featuredAudioTracks.map((track) => (
-              <div
-                key={track.id}
-                className="benin-card flex flex-col md:flex-row overflow-hidden animate-on-scroll"
-              >
-                <div className="md:w-1/3 overflow-hidden">
-                  <img
-                    src={track.imageUrl || "/images/audio/placeholder.jpg"}
-                    alt={track.title}
-                    className="w-full h-full object-cover md:object-center"
-                  />
-                </div>
-                <div className="md:w-2/3 p-6">
-                  <div className="flex items-center mb-2">
-                    <div className="w-10 h-10 rounded-full bg-benin-red/10 flex items-center justify-center mr-3">
-                      <Music size={20} className="text-benin-red" />
+          {isLoadingMusics ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-benin-green"></div>
+            </div>
+          ) : musics.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">Aucune musique disponible pour le moment.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+              {musics.map((music) => (
+                <div
+                  key={music.id}
+                  className="benin-card flex flex-col md:flex-row overflow-hidden animate-on-scroll"
+                >
+                  <div className="md:w-1/3 overflow-hidden">
+                    <img
+                      src={music.image_url || "/images/audio/placeholder.jpg"}
+                      alt={music.title}
+                      className="w-full h-full object-cover md:object-center"
+                    />
+                  </div>
+                  <div className="md:w-2/3 p-6">
+                    <div className="flex items-center mb-2">
+                      <div className="w-10 h-10 rounded-full bg-benin-red/10 flex items-center justify-center mr-3">
+                        <Music size={20} className="text-benin-red" />
+                      </div>
+                      <div>
+                        <span className="text-xs font-semibold text-benin-red">
+                          {music.category}
+                        </span>
+                        <h3 className="font-semibold">{music.title}</h3>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-xs font-semibold text-benin-red">
-                        {track.category}
-                      </span>
-                      <h3 className="font-semibold">{track.title}</h3>
+                    <p className="text-gray-600 text-sm mb-4">
+                      {music.description?.substring(0, 100)}...
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <audio controls className="w-full h-8">
+                        <source src={music.audio_url} type="audio/mpeg" />
+                        Votre navigateur ne supporte pas la lecture audio.
+                      </audio>
                     </div>
                   </div>
-                  <p className="text-gray-600 text-sm mb-4">
-                    {track.description.substring(0, 100)}...
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-500">
-                      {track.duration}
-                    </span>
-                    <Link
-                      to={`/audio/${track.id}`}
-                      className="text-benin-red hover:text-benin-red/80 text-sm font-medium flex items-center gap-1"
-                    >
-                      <span>Écouter</span>
-                      <ChevronRight size={16} />
-                    </Link>
-                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <div className="text-center">
             <Link to="/audio">
               <Button
                 variant="outline"
-                className="border-benin-red text-benin-red hover:bg-benin-red/5"
+                className="border-benin-red text-benin-red hover:text-benin-red hover:bg-benin-red/5"
               >
                 Explorer la bibliothèque audio
                 <ChevronRight size={16} className="ml-1" />

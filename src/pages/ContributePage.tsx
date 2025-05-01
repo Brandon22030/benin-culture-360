@@ -66,24 +66,23 @@ export default function ContributePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Vérifier les limites de fichiers pour la section audio
-    if (activeTab === "audio") {
-      if (type === "audio" && uploadedFiles.audios.length > 0) {
-        toast({
-          title: "Erreur",
-          description: "Un seul fichier audio est autorisé",
-          variant: "destructive",
-        });
-        return;
-      }
-      if (type === "image" && uploadedFiles.images.length > 0) {
-        toast({
-          title: "Erreur",
-          description: "Une seule image de couverture est autorisée",
-          variant: "destructive",
-        });
-        return;
-      }
+    // Vérifier les limites de fichiers pour les deux sections
+    if (type === "image" && uploadedFiles.images.length > 0) {
+      toast({
+        title: "Erreur",
+        description: "Une seule image est autorisée",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (type === "audio" && uploadedFiles.audios.length > 0) {
+      toast({
+        title: "Erreur",
+        description: "Un seul fichier audio est autorisé",
+        variant: "destructive",
+      });
+      return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
@@ -193,7 +192,7 @@ export default function ContributePage() {
           description: form.querySelector("#gallery-description")?.value,
           credit: form.querySelector("#gallery-credit")?.value,
           source: form.querySelector("#gallery-source")?.value,
-          image_url: uploadedFiles.images, // Maintenant on envoie tout le tableau d'URLs
+          image_url: uploadedFiles.images[0], // Maintenant on envoie tout le tableau d'URLs
           status: "pending",
         };
 
@@ -387,7 +386,7 @@ export default function ContributePage() {
                             Télécharger une image
                           </h3>
                           <p className="mt-1 text-xs text-gray-500">
-                            PNG, JPG jusqu'à 10MB (haute résolution recommandée)
+                              Une seule image PNG ou JPG jusqu'à 10MB (haute résolution recommandée)
                           </p>
                           <div className="mt-4">
                             <Input
@@ -410,7 +409,7 @@ export default function ContributePage() {
                         </div>
 
                         {uploadedFiles.images.length > 0 && (
-                          <div className="grid grid-cols-2 gap-4 mt-4">
+                          <div className="mt-4">
                             {uploadedFiles.images.map((url, index) => (
                               <div
                                 key={index}
@@ -634,7 +633,7 @@ export default function ContributePage() {
                               Image de couverture
                             </h3>
                             <p className="mt-1 text-xs text-gray-500">
-                              Une seule image PNG ou JPG jusqu'à 10MB
+                              Une seule image PNG ou JPG jusqu'à 10MB (haute résolution recommandée)
                             </p>
                             <div className="mt-4">
                               <Input
