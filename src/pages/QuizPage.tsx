@@ -284,7 +284,14 @@ const QuizPage = () => {
                     onClick={startQuiz}
                     disabled={isLoading}
                   >
-                    {isLoading ? "Génération en cours..." : "Commencer le Quiz"}
+                    {isLoading ? (
+                      <>
+                        <span className="mr-2">Génération en cours</span>
+                        <Progress value={33 * (currentQuestionIndex + 1)} className="w-full" />
+                      </>
+                    ) : (
+                      "Commencer le Quiz"
+                    )}
                   </Button>
                 </CardFooter>
               </Card>
