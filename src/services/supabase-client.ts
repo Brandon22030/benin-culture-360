@@ -1,17 +1,27 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 
-console.log('Environment Variables:', {
-  VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
-  VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY,
-  PROCESS_SUPABASE_URL: process.env.SUPABASE_URL,
-  PROCESS_SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY
-});
+// Ajoutez une déclaration globale pour window.ENV
+declare global {
+  interface Window {
+    ENV?: {
+      VITE_SUPABASE_URL?: string;
+      VITE_SUPABASE_ANON_KEY?: string;
+    };
+  }
+}
 
-const supabaseUrl =
-  import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-const supabaseAnonKey =
-  import.meta.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+const supabaseUrl = 
+  import.meta.env?.VITE_SUPABASE_URL || 
+  process.env?.SUPABASE_URL || 
+  window.ENV?.VITE_SUPABASE_URL ||
+  'https://itrimxcpgeksvbegfwmf.supabase.co';
+
+const supabaseAnonKey = 
+  import.meta.env?.VITE_SUPABASE_ANON_KEY || 
+  process.env?.SUPABASE_ANON_KEY || 
+  window.ENV?.VITE_SUPABASE_ANON_KEY ||
+  'votre_clé_anonyme';
 
 console.log('Resolved Supabase URL:', supabaseUrl);
 console.log('Resolved Supabase Anon Key:', supabaseAnonKey ? '[REDACTED]' : 'MISSING');
