@@ -120,7 +120,8 @@ export default function ContactPage() {
                     <div>
                       <h3 className="font-semibold">Email</h3>
                       <p className="text-gray-600">
-                        contact@beninculture360.com
+                        {" "}
+                        beninculture360@gmail.com
                       </p>
                     </div>
                   </div>

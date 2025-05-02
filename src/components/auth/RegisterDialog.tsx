@@ -45,15 +45,16 @@ const RegisterDialog = ({ open, onOpenChange }: RegisterDialogProps) => {
     setIsLoading(true);
 
     try {
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: name,
+      const { data: signUpData, error: signUpError } =
+        await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: name,
+            },
           },
-        },
-      });
+        });
 
       if (signUpError) {
         throw signUpError;

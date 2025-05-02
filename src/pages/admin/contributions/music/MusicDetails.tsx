@@ -20,12 +20,14 @@ const MusicDetails = () => {
     try {
       const { data, error } = await supabase
         .from("music_pending")
-        .select(`*,
+        .select(
+          `*,
           profiles:contributor_id (
             username,
             full_name,
             email
-          )`)
+          )`,
+        )
         .eq("id", id)
         .single();
 
@@ -44,7 +46,7 @@ const MusicDetails = () => {
     } finally {
       setIsLoading(false);
     }
-};
+  };
 
   if (isLoading) return <div>Chargement...</div>;
   if (!item)
