@@ -223,16 +223,16 @@ const ContributionsTab = () => {
     }
   };
 
-  if (isLoading) return <div>Chargement...</div>;
+  if (isLoading) return <div className="mt-20 lg:mt-0 md:mt-0">Chargement...</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-20 lg:mt-0 md:mt-0">
       <Tabs defaultValue="images">
         <TabsList className="w-full grid grid-cols-2">
-          <TabsTrigger value="images">
+          <TabsTrigger value="images" className="text-sm sm:text-base">
             Images en attente ({pendingGalleryCount})
           </TabsTrigger>
-          <TabsTrigger value="audio">
+          <TabsTrigger value="audio" className="text-sm sm:text-base">
             Audio en attente ({pendingMusicCount})
           </TabsTrigger>
         </TabsList>
@@ -240,37 +240,39 @@ const ContributionsTab = () => {
         <TabsContent value="images">
           <Card>
             <CardHeader>
-              <CardTitle>Images en attente</CardTitle>
+              <CardTitle className="text-xl sm:text-2xl">Images en attente</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {galleryPending.map((item) => (
-                  <div key={item.id} className="border rounded-lg p-4">
+                  <div key={item.id} className="border rounded-lg p-3 sm:p-4">
                     <img
                       src={getImageUrls(item.image_url)}
                       alt={item.title}
-                      className="w-full h-48 object-cover rounded-md mb-4"
+                      className="w-full h-32 sm:h-48 object-cover rounded-md mb-3 sm:mb-4"
                       onError={(e) => {
                         e.currentTarget.src = "/images/gallery/placeholder.jpg";
                       }}
                     />
-                    <h3 className="font-semibold">{item.title}</h3>
-                    <p className="text-sm text-gray-500 line-clamp-2">
+                    <h3 className="font-semibold text-sm sm:text-base">{item.title}</h3>
+                    <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mb-3">
                       {item.description}
                     </p>
 
-                    <div className="flex justify-between items-center mt-4">
-                      <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+                      <div className="flex gap-2 w-full sm:w-auto">
                         <Button
                           variant="outline"
-                          onClick={() =>
-                            navigate(`/admin/contributions/gallery/${item.id}`)
-                          }
+                          size="sm"
+                          className="flex-1 sm:flex-none text-xs sm:text-sm"
+                          onClick={() => navigate(`/admin/contributions/gallery/${item.id}`)}
                         >
                           Détails
                         </Button>
                         <Button
                           variant="destructive"
+                          size="sm"
+                          className="flex-1 sm:flex-none text-xs sm:text-sm"
                           onClick={() => handleDelete(item.id, "gallery")}
                         >
                           Supprimer
@@ -279,13 +281,9 @@ const ContributionsTab = () => {
 
                       <Select
                         defaultValue={item.status}
-                        onValueChange={(value) =>
-                          handleStatusChange(item.id, value, "gallery")
-                        }
+                        onValueChange={(value) => handleStatusChange(item.id, value, "gallery")}
                       >
-                        <SelectTrigger
-                          className={`w-[180px] ${getStatusStyle(item.status)}`}
-                        >
+                        <SelectTrigger className={`w-full sm:w-[180px] text-xs sm:text-sm ${getStatusStyle(item.status)}`}>
                           <SelectValue placeholder="Statut" />
                         </SelectTrigger>
                         <SelectContent>
@@ -305,13 +303,13 @@ const ContributionsTab = () => {
         <TabsContent value="audio">
           <Card>
             <CardHeader>
-              <CardTitle>Audio en attente</CardTitle>
+              <CardTitle className="text-xl sm:text-2xl">Audio en attente</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {musicPending.map((item) => (
-                  <div key={item.id} className="border rounded-lg p-4">
-                    <div className="bg-muted p-4 rounded-lg mb-4">
+                  <div key={item.id} className="border rounded-lg p-3 sm:p-4">
+                    <div className="bg-muted p-3 sm:p-4 rounded-lg mb-3 sm:mb-4">
                       <audio
                         controls
                         className="w-full"
@@ -321,23 +319,25 @@ const ContributionsTab = () => {
                         Votre navigateur ne supporte pas la lecture audio.
                       </audio>
                     </div>
-                    <h3 className="font-semibold">{item.title}</h3>
-                    <p className="text-sm text-gray-500 line-clamp-2">
+                    <h3 className="font-semibold text-sm sm:text-base">{item.title}</h3>
+                    <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mb-3">
                       {item.description}
                     </p>
 
-                    <div className="flex justify-between items-center mt-4">
-                      <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+                      <div className="flex gap-2 w-full sm:w-auto">
                         <Button
                           variant="outline"
-                          onClick={() =>
-                            navigate(`/admin/contributions/music/${item.id}`)
-                          }
+                          size="sm"
+                          className="flex-1 sm:flex-none text-xs sm:text-sm"
+                          onClick={() => navigate(`/admin/contributions/music/${item.id}`)}
                         >
                           Détails
                         </Button>
                         <Button
                           variant="destructive"
+                          size="sm"
+                          className="flex-1 sm:flex-none text-xs sm:text-sm"
                           onClick={() => handleDelete(item.id, "music")}
                         >
                           Supprimer
@@ -346,13 +346,9 @@ const ContributionsTab = () => {
 
                       <Select
                         defaultValue={item.status}
-                        onValueChange={(value) =>
-                          handleStatusChange(item.id, value, "music")
-                        }
+                        onValueChange={(value) => handleStatusChange(item.id, value, "music")}
                       >
-                        <SelectTrigger
-                          className={`w-[180px] ${getStatusStyle(item.status)}`}
-                        >
+                        <SelectTrigger className={`w-full sm:w-[180px] text-xs sm:text-sm ${getStatusStyle(item.status)}`}>
                           <SelectValue placeholder="Statut" />
                         </SelectTrigger>
                         <SelectContent>

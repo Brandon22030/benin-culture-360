@@ -66,18 +66,18 @@ const GalleryDetails = () => {
   if (!item) return <div>Contribution non trouvée</div>;
 
   return (
-    <div className="container py-8">
-      <Button variant="outline" onClick={() => navigate(-1)} className="mb-6">
+    <div className="container py-4 sm:py-8 px-4 sm:px-6">
+      <Button variant="outline" onClick={() => navigate(-1)} className="mb-4 sm:mb-6">
         Retour
       </Button>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">{item.title}</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl">{item.title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-8">
-            <div className="w-full relative rounded-lg overflow-hidden mb-6">
+          <div className="space-y-4 sm:space-y-8">
+            <div className="w-full relative rounded-lg overflow-hidden mb-4 sm:mb-6">
               <div className="relative aspect-[4/3] group cursor-pointer">
                 <img
                   src={getImageUrls(item.image_url)}
@@ -85,19 +85,16 @@ const GalleryDetails = () => {
                   className="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-105"
                   onError={(e) => {
                     e.currentTarget.src = "/images/gallery/placeholder.jpg";
-                    // Supprimer ce console.error
                   }}
                 />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-lg">
-                  <span className="text-white text-sm">
-                    Cliquer pour agrandir
-                  </span>
+                  <span className="text-white text-sm">Cliquer pour agrandir</span>
                 </div>
               </div>
             </div>
 
-            <div className="grid gap-6">
-              <div className="bg-muted p-6 rounded-lg">
+            <div className="grid gap-4 sm:gap-6">
+              <div className="bg-muted p-4 sm:p-6 rounded-lg">
                 <h3 className="text-xl font-semibold mb-4">
                   Informations générales
                 </h3>

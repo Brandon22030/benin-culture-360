@@ -89,10 +89,10 @@ const UsersTab = () => {
       .slice(0, 2);
   };
 
-  if (isLoading) return <div>Chargement...</div>;
+  if (isLoading) return <div className="mt-20 lg:mt-0 md:mt-0">Chargement...</div>;
 
   return (
-    <Card>
+    <Card className="mt-20 lg:mt-0 md:mt-0">
       <CardHeader>
         <CardTitle>Liste des utilisateurs</CardTitle>
       </CardHeader>

@@ -69,7 +69,7 @@ const DashboardPage = () => {
         </h1>
 
         <Tabs defaultValue="contributions">
-          <TabsList className="grid grid-cols-3 w-[400px]">
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 sm:w-[400px]">
             <TabsTrigger value="contributions">Contributions</TabsTrigger>
             <TabsTrigger value="users">Utilisateurs</TabsTrigger>
             <TabsTrigger value="stats">Statistiques</TabsTrigger>
