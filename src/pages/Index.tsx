@@ -121,19 +121,19 @@ const Index = () => {
               Une immersion interactive au cœur des traditions, de l'art, de la
               musique et du patrimoine de la perle de l'Afrique de l'Ouest.
             </p>
-            <div className="flex space-x-4">
-              <Link to="/quiz">
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+              <Link to="/quiz" className="w-full sm:w-auto">
                 <Button
                   variant="default"
-                  className="bg-benin-yellow hover:bg-benin-yellow/90 text-black font-semibold px-8 py-6 text-lg rounded-md"
+                  className="bg-benin-yellow hover:bg-benin-yellow/90 text-black font-semibold px-8 py-6 text-lg rounded-md w-full"
                 >
                   Commencer le Quiz
                 </Button>
               </Link>
-              <Link to="/map">
+              <Link to="/map" className="w-full sm:w-auto">
                 <Button
                   variant="default"
-                  className=" text-white bg-benin-green hover:bg-benin-green/90 px-8 py-6 text-lg"
+                  className="text-white bg-benin-green hover:bg-benin-green/90 px-8 py-6 text-lg w-full"
                 >
                   Explorer la Carte
                 </Button>

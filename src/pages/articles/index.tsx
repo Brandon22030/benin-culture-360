@@ -64,9 +64,9 @@ export default function ArticlesPage() {
 
   return (
     <Layout>
-      <div className="container mx-auto py-6">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-4">
+      <div className="container mx-auto py-6 px-4 sm:px-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <Button
               variant="outline"
               onClick={() => navigate("/")}
@@ -75,13 +75,13 @@ export default function ArticlesPage() {
               <ArrowLeft size={16} />
               Retour
             </Button>
-            <h1 className="text-3xl font-bold">
+            <h1 className="text-2xl sm:text-3xl font-bold">
               Articles sur les Cultures du Bénin
             </h1>
           </div>
           <Button
             onClick={handleNewArticle}
-            className="bg-benin-green hover:bg-benin-green/90"
+            className="bg-benin-green hover:bg-benin-green/90 w-full sm:w-auto"
           >
             <Plus className="mr-2 h-4 w-4" />
             Écrire un article
@@ -99,15 +99,15 @@ export default function ArticlesPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {articles.map((article) => (
               <Card
                 key={article.id}
-                className="cursor-pointer hover:shadow-lg transition-shadow overflow-hidden"
+                className="cursor-pointer hover:shadow-lg transition-shadow overflow-hidden flex flex-col"
                 onClick={() => navigate(`/articles/${article.id}`)}
               >
                 {article.image_url && (
-                  <div className="relative w-full h-48">
+                  <div className="relative w-full h-40 sm:h-48">
                     <img
                       src={article.image_url}
                       alt={article.title}
@@ -115,9 +115,9 @@ export default function ArticlesPage() {
                     />
                   </div>
                 )}
-                <CardHeader>
+                <CardHeader className="flex-grow">
                   <div className="flex flex-col space-y-1">
-                    <CardTitle className="line-clamp-2">
+                    <CardTitle className="text-xl sm:text-2xl line-clamp-2">
                       {article.title}
                     </CardTitle>
                     <p className="text-sm text-gray-500">
@@ -130,10 +130,10 @@ export default function ArticlesPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600 line-clamp-3 mb-4">
+                  <p className="text-sm sm:text-base text-gray-600 line-clamp-3 mb-4">
                     {article.content}
                   </p>
-                  <div className="flex justify-between items-center text-sm text-gray-500">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 text-sm text-gray-500">
                     <span>
                       Par{" "}
                       {article.profiles?.full_name ||

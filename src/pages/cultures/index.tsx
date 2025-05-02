@@ -37,8 +37,8 @@ export default function CulturesPage() {
   return (
     <Layout>
       <div className="container mx-auto py-6">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <Button
               variant="outline"
               onClick={() => navigate("/")}
@@ -47,11 +47,11 @@ export default function CulturesPage() {
               <ArrowLeft size={16} />
               Retour
             </Button>
-            <h1 className="text-3xl font-bold">Cultures du Bénin</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Cultures du Bénin</h1>
           </div>
           <Button
             onClick={() => navigate("/cultures/new")}
-            className="bg-benin-green hover:bg-benin-green/90"
+            className="bg-benin-green hover:bg-benin-green/90 w-full sm:w-auto"
           >
             <Plus className="mr-2 h-4 w-4" />
             Ajouter une culture

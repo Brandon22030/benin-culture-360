@@ -274,27 +274,26 @@ export default function ContributePage() {
 
   return (
     <Layout>
-      <div className="bg-gray-50 min-h-screen py-12">
-        <div className="container mx-auto">
-          <div className="max-w-4xl mx-auto px-4">
+      <div className="bg-gray-50 min-h-screen py-8 sm:py-12">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
             <Tabs defaultValue="gallery" onValueChange={setActiveTab}>
-              <TabsList className="grid grid-cols-2 mb-8">
+              <TabsList className="grid grid-cols-2 mb-6 sm:mb-8">
                 <TabsTrigger value="gallery">Galerie</TabsTrigger>
                 <TabsTrigger value="audio">Audio</TabsTrigger>
-                {/* <TabsTrigger value="quiz">Quiz</TabsTrigger> */}
               </TabsList>
 
               <TabsContent value="gallery">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Contribution à la Galerie</CardTitle>
+                    <CardTitle className="text-xl sm:text-2xl">Contribution à la Galerie</CardTitle>
                     <CardDescription>
                       Partagez des images du patrimoine culturel béninois
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleSubmit}>
-                      <div className="space-y-4">
+                      <div className="space-y-4 sm:space-y-6">
                         <div className="space-y-2">
                           <Label htmlFor="gallery-title">
                             Titre de l'image
@@ -307,7 +306,7 @@ export default function ContributePage() {
                           />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="gallery-category">Catégorie</Label>
                             <Select name="gallery-category">
@@ -470,15 +469,14 @@ export default function ContributePage() {
               <TabsContent value="audio">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Contribution Audio</CardTitle>
+                    <CardTitle className="text-xl sm:text-2xl">Contribution Audio</CardTitle>
                     <CardDescription>
-                      Partagez des enregistrements de musiques traditionnelles
-                      ou récits
+                      Partagez des enregistrements de musiques traditionnelles ou récits
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleSubmit}>
-                      <div className="space-y-4">
+                      <div className="space-y-4 sm:space-y-6">
                         <div className="space-y-2">
                           <Label htmlFor="audio-title">
                             Titre de l'enregistrement
@@ -490,7 +488,7 @@ export default function ContributePage() {
                             required
                           />
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="artist">Artiste/Interprète</Label>
                             <Input
